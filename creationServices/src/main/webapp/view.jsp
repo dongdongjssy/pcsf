@@ -18,6 +18,7 @@
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
 </head>
 <body>
+	<jsp:include page="common.jsp" />
 	<h2>Collaboration Details Page</h2>
 	<hr>
 	<%

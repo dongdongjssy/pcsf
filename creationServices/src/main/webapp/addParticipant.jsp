@@ -28,6 +28,7 @@
 </script>
 </head>
 <body>
+	<jsp:include page="common.jsp" />
 	<h2>Add a new participant</h2>
 	<hr>
 
