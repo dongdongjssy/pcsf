@@ -20,7 +20,6 @@
 <body>
 	<jsp:include page="common.jsp" />
 	<h2>Collaboration Details Page</h2>
-	<hr>
 	<%
 		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
 		String collaborationId = request.getParameter("collaborationId");

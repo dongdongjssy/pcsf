@@ -30,7 +30,6 @@
 <body>
 	<jsp:include page="common.jsp" />
 	<h2>Add a new participant</h2>
-	<hr>
 
 	<form name="addParticipantForm" method="post" action="AddParticipant">
 		<table>
