@@ -182,6 +182,10 @@ public class CreationServiceImpl implements CreationService {
 		items.add(item);
 		logger.info("Putting collaboration <" + collaborationName + "> into domain...");
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
+		
+		logger.info("Packing collaboration services...");
+		packServices(collaborationName, collaborationId);
+		
 		logger.info("Collaboration <" + collaborationName + "> has been created successfully!");
 
 		logger.debug(LOGPRE + "createCollaboration() end" + LOGPRE);
@@ -218,8 +222,6 @@ public class CreationServiceImpl implements CreationService {
 			// generate collaboration services
 			logger.info("Generating collaboration services...");
 			generateServices(collaborationName);
-			logger.info("Packing collaboration services...");
-			packServices(collaborationName, collaborationId);
 
 			// change the state of this collaboration.
 			logger.info("Updating collaboration <" + collaborationName + "> state to be" + COLLABORATION_STATE_DEPLOYED);

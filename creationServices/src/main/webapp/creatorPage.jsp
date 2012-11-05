@@ -71,7 +71,6 @@
 								+ request.getContextPath() + "/Deploy?collaborationId=" + collaboration.getId()
 								+ "';\"/>");
 						out.print("<input type=\"button\" value=\"View\" disabled/></td>");
-						out.print("<td class=\"one\">Not Deployed Yet</td>");
 					}
 
 					else {
@@ -79,9 +78,9 @@
 						out.print("<input type=\"button\" value=\"View\"onclick=\"window.location.href='"
 								+ request.getContextPath() + "/view.jsp?collaborationId=" + collaboration.getId()
 								+ "';\"/></td>");
-						out.print("<td class=\"one\"><a href=\"download.jsp?collaborationId=" + collaboration.getId()
-								+ "\">download</a></td>");
 					}
+					out.print("<td class=\"one\"><a href=\"download.jsp?collaborationId=" + collaboration.getId()
+							+ "\">download</a></td>");
 				}
 				out.println("</tr>");
 			}
