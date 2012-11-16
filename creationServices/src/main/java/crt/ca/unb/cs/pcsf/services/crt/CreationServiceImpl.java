@@ -133,8 +133,7 @@ public class CreationServiceImpl implements CreationService {
 	 * @see ca.unb.cs.pcsf.services.crtservice.CreationService#createCollaboration(java.lang.String, java.util.List,
 	 * java.lang.String, java.lang.String)
 	 */
-	public boolean createCollaboration(String collaborationName, List<String> participants, String creatorId,
-			File workflowFile) {
+	public boolean createCollaboration(String collaborationName, List<String> participants, String creatorId, File workflowFile) {
 		logger.debug(LOGPRE + "createCollaboration() start" + LOGPRE);
 
 		// create bucket if not exist
@@ -158,8 +157,8 @@ public class CreationServiceImpl implements CreationService {
 		String key = workflowFile.getName();
 		s3.putObject(new PutObjectRequest(bucketName, key, workflowFile));
 
-		logger.info("file <" + workflowFile.getName() + "> has been uploaded to bucket <" + bucketName + "> with key <"
-				+ key + ">");
+		logger.info("file <" + workflowFile.getName() + "> has been uploaded to bucket <" + bucketName + "> with key <" + key
+				+ ">");
 
 		// create collaboration
 		String collaborationId = this.idGenerator(DOMAIN_COLLABORATION);
@@ -167,9 +166,9 @@ public class CreationServiceImpl implements CreationService {
 		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
 		ReplaceableItem item = new ReplaceableItem(collaborationId);
 		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_NAME, collaborationName, true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, creatorId, true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_NEW_CREATED, true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true));
+				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, creatorId, true), new ReplaceableAttribute(
+						COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_NEW_CREATED, true), new ReplaceableAttribute(
+						COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true));
 
 		for (String p : participants) {
 			String[] infos = p.split(",");
@@ -182,10 +181,10 @@ public class CreationServiceImpl implements CreationService {
 		items.add(item);
 		logger.info("Putting collaboration <" + collaborationName + "> into domain...");
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
-		
+
 		logger.info("Packing collaboration services...");
 		packServices(collaborationName, collaborationId);
-		
+
 		logger.info("Collaboration <" + collaborationName + "> has been created successfully!");
 
 		logger.debug(LOGPRE + "createCollaboration() end" + LOGPRE);
@@ -235,8 +234,8 @@ public class CreationServiceImpl implements CreationService {
 			for (String p : participantNames) {
 				String email = "";
 				String id = "";
-				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where "
-						+ PARTICIPANT_ATTRIBUTE_NAME + " = '" + p + "'";
+				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME
+						+ " = '" + p + "'";
 				List<Item> items = sdb.select(new SelectRequest(getParticipantRequest)).getItems();
 
 				if (items != null) {
@@ -322,8 +321,7 @@ public class CreationServiceImpl implements CreationService {
 		if (null != services) {
 			for (File service : services) {
 				if (service.isFile() && service.getName().startsWith(collaborationName)) {
-					logger.info(" - deleting service <"
-							+ service.getName().substring(0, service.getName().length() - 4) + ">");
+					logger.info(" - deleting service <" + service.getName().substring(0, service.getName().length() - 4) + ">");
 					delFile(service);
 				}
 				if (service.isDirectory() && service.getName().startsWith(collaborationName)) {
@@ -354,8 +352,8 @@ public class CreationServiceImpl implements CreationService {
 			for (String p : participantNames) {
 				logger.info(" - deleting participant <" + p + ">...");
 				String pid = "";
-				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where "
-						+ PARTICIPANT_ATTRIBUTE_NAME + " = '" + p + "'";
+				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME
+						+ " = '" + p + "'";
 				List<Item> items = sdb.select(new SelectRequest(getParticipantRequest)).getItems();
 
 				if (items != null) {
@@ -396,12 +394,12 @@ public class CreationServiceImpl implements CreationService {
 		String id = this.idGenerator(DOMAIN_PARTICIPANT);
 
 		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-		items.add(new ReplaceableItem(id).withAttributes(new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_NAME, name,
-				true), new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_EMAIL, email, true), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_COLLABORATION_ID, collaborationId, false), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_IS_REG, PARTICIPANT_IS_REG_NO, true), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_ROLE, role, true), new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_GROUP, group,
-				true)));
+		items.add(new ReplaceableItem(id).withAttributes(new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_NAME, name, true),
+				new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_EMAIL, email, true), new ReplaceableAttribute(
+						PARTICIPANT_ATTRIBUTE_COLLABORATION_ID, collaborationId, false), new ReplaceableAttribute(
+						PARTICIPANT_ATTRIBUTE_IS_REG, PARTICIPANT_IS_REG_NO, true), new ReplaceableAttribute(
+						PARTICIPANT_ATTRIBUTE_ROLE, role, true), new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_GROUP, group,
+						true)));
 
 		logger.info("Adding participant <" + name + "> into domain...");
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_PARTICIPANT, items));
@@ -442,8 +440,7 @@ public class CreationServiceImpl implements CreationService {
 				if (file.isDirectory() && !(file.getName().startsWith(".")) && !(file.getName().contains("pcsfWeb"))) {
 					logger.info(" - generating collaboration service <" + file.getName() + ">...");
 					String sourceDir = serviceLocation + File.separator + file.getName();
-					String targetDir = SERVICES_DEPLOY_LOCATION + File.separator + collaborationName + "-"
-							+ file.getName();
+					String targetDir = SERVICES_DEPLOY_LOCATION + File.separator + collaborationName + "-" + file.getName();
 					try {
 						copyDirectory(sourceDir, targetDir);
 					} catch (IOException e) {
@@ -483,8 +480,7 @@ public class CreationServiceImpl implements CreationService {
 				destFolder.mkdir();
 
 			// compress files
-			File zipFile = new File(SAVE_PATH + File.separator + collaborationName + File.separator + collaborationName
-					+ ".zip");
+			File zipFile = new File(SAVE_PATH + File.separator + collaborationName + File.separator + collaborationName + ".zip");
 			ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile));
 
 			if (files.length > 0 && files != null) {
@@ -517,8 +513,8 @@ public class CreationServiceImpl implements CreationService {
 			String key = zipFile.getName();
 			s3.putObject(new PutObjectRequest(bucketName, key, zipFile));
 
-			logger.info("file <" + zipFile.getName() + "> has been uploaded to bucket <" + bucketName + "> with key <"
-					+ key + ">");
+			logger.info("file <" + zipFile.getName() + "> has been uploaded to bucket <" + bucketName + "> with key <" + key
+					+ ">");
 
 			List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
 			ReplaceableItem item = new ReplaceableItem(collaborationId);
@@ -671,13 +667,11 @@ public class CreationServiceImpl implements CreationService {
 			t.close();
 		} catch (AddressException e) {
 			e.printStackTrace();
-			logger.info("Caught an AddressException, which means one or more of your "
-					+ "addresses are improperly formatted.");
+			logger.info("Caught an AddressException, which means one or more of your " + "addresses are improperly formatted.");
 		} catch (MessagingException e) {
 			e.printStackTrace();
 			logger.info("Caught a MessagingException, which means that there was a "
-					+ "problem sending your message to Amazon's E-mail Service check the "
-					+ "stack trace for more information.");
+					+ "problem sending your message to Amazon's E-mail Service check the " + "stack trace for more information.");
 		}
 
 		logger.debug(LOGPRE + "sendCreatorNotificationMail() end" + LOGPRE);
@@ -719,21 +713,19 @@ public class CreationServiceImpl implements CreationService {
 			t.close();
 		} catch (AddressException e) {
 			e.printStackTrace();
-			logger.info("Caught an AddressException, which means one or more of your "
-					+ "addresses are improperly formatted.");
+			logger.info("Caught an AddressException, which means one or more of your " + "addresses are improperly formatted.");
 		} catch (MessagingException e) {
 			e.printStackTrace();
 			logger.info("Caught a MessagingException, which means that there was a "
-					+ "problem sending your message to Amazon's E-mail Service check the "
-					+ "stack trace for more information.");
+					+ "problem sending your message to Amazon's E-mail Service check the " + "stack trace for more information.");
 		}
 
 		logger.debug(LOGPRE + "sendParticipantNotificationMail() end" + LOGPRE);
 	}
 
 	/**
-	 * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a
-	 * verification email, which will contain a link that you can click on to complete the verification process.
+	 * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a verification email,
+	 * which will contain a link that you can click on to complete the verification process.
 	 * 
 	 * @param ses
 	 *            The Amazon Simple Email Service client to use when making requests to Amazon SES.
@@ -801,7 +793,7 @@ public class CreationServiceImpl implements CreationService {
 		}
 
 		logger.debug(LOGPRE + "idGenerator() end" + LOGPRE);
-		return id;
+		return "pcsf-" + id;
 	}
 
 	/**
@@ -866,8 +858,8 @@ public class CreationServiceImpl implements CreationService {
 	private boolean isCollaborationExist(String collaborationName) {
 		logger.debug(LOGPRE + "isCollaborationExist() start" + LOGPRE);
 
-		String selectRequest = "select * from `" + DOMAIN_COLLABORATION + "` where " + COLLABORATION_ATTRIBUTE_NAME
-				+ " = '" + collaborationName + "'";
+		String selectRequest = "select * from `" + DOMAIN_COLLABORATION + "` where " + COLLABORATION_ATTRIBUTE_NAME + " = '"
+				+ collaborationName + "'";
 		List<Item> items = sdb.select(new SelectRequest(selectRequest)).getItems();
 		if (items.isEmpty()) {
 			logger.debug("Collaboration <" + collaborationName + "> doesn't exist");
