@@ -16,19 +16,19 @@
 
 	<modules>
 		<module>
-  		../../../Users/ddong/Documents/GitHub/pcsf/dataTransferService
+  		../dataTransferService
   	</module>
 		<module>
-  		../../../Users/ddong/Documents/GitHub/pcsf/monitorNControlService
+  		../monitorNControlService
   	</module>
 		<module>
-  		../../../Users/ddong/Documents/GitHub/pcsf/pcsfWeb
+  		../pcsfWeb
   	</module>
 		<module>
-  		../../../Users/ddong/Documents/GitHub/pcsf/registrationService
+  		../registrationService
   	</module>
 		<module>
-  		../../../Users/ddong/Documents/GitHub/pcsf/scheduleNCoordinateService
+  		../scheduleNCoordinateService
   	</module>
 	</modules>
 </project>
