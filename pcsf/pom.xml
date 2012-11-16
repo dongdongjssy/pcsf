@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>ca.unb.cs</groupId>
+	<artifactId>pcsf</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
+	<name>pcsf</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modules>
+		<module>
+  		../../../Users/ddong/Documents/GitHub/pcsf/dataTransferService
+  	</module>
+		<module>
+  		../../../Users/ddong/Documents/GitHub/pcsf/monitorNControlService
+  	</module>
+		<module>
+  		../../../Users/ddong/Documents/GitHub/pcsf/pcsfWeb
+  	</module>
+		<module>
+  		../../../Users/ddong/Documents/GitHub/pcsf/registrationService
+  	</module>
+		<module>
+  		../../../Users/ddong/Documents/GitHub/pcsf/scheduleNCoordinateService
+  	</module>
+	</modules>
+</project>
