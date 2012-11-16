@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <process name="collaborativeTesting" xmlns="http://jbpm.org/4.4/jpdl">
-   <start name="start1" g="17,317,48,48">
+   <start g="14,155,48,48" name="start1">
       <transition to="fork"/>
    </start>
-   <task name="test case designing" g="179,221,169,52" assignee="test case designer">
-      <transition to="join" g="381,246:"/>
+   <task assignee="test case designer" g="176,59,169,52" name="test case designing">
+      <transition g="378,83:" to="join"/>
    </task>
-   <task name="page library designing" g="179,396,178,52" assignee="page library designer">
-      <transition to="join" g="383,420:"/>
+   <task assignee="page library designer" g="176,234,178,52" name="page library designing">
+      <transition g="380,258:" to="join"/>
    </task>
-   <task name="test case writting" g="436,307,136,52" assignee="test case writter">
+   <task assignee="test case writter" g="433,145,136,52" name="test case writting">
       <transition to="test case running"/>
    </task>
-   <task name="test case running" g="597,306,146,52" assignee="testing system">
-      <transition to="end"/>
+   <task assignee="testing system" g="594,144,146,52" name="test case running">
+      <transition to="team leader check"/>
    </task>
-   <fork name="fork" g="102,315,48,48">
-      <transition to="test case designing" g="126,249:"/>
-      <transition to="page library designing" g="126,424:"/>
+   <fork g="99,153,48,48" name="fork">
+      <transition g="123,86:" to="test case designing"/>
+      <transition g="124,261:" to="page library designing"/>
    </fork>
-   <join name="join" g="358,310,48,48">
+   <join g="355,148,48,48" name="join">
       <transition to="test case writting"/>
    </join>
-   <end name="end" g="647,407,48,48"/>
+   <end g="525,247,48,48" name="end"/>
+   <task assignee="team leader" g="601,243,131,52" name="team leader check">
+      <transition to="end"/>
+   </task>
 </process>
