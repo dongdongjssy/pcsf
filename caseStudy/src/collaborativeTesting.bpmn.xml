@@ -16,18 +16,18 @@
 			gatewayDirection="diverging" />
 
 		<sequenceFlow id="flow2a" name="Leg 1" sourceRef="parallelGatewaySplit"
-			targetRef="useCaseDesign" />
+			targetRef="testCaseDesign" />
 
-		<userTask id="useCaseDesign" name="Use Case Design">
+		<userTask id="testCaseDesign" name="Test Case Design">
 			<humanPerformer resourceRef="designer">
 				<resourceAssignmentExpression>
-					<formalExpression>use case designer</formalExpression>
+					<formalExpression>test case designer</formalExpression>
 				</resourceAssignmentExpression>
 			</humanPerformer>
 		</userTask>
 
-		<sequenceFlow id="flow2b" name="fromUseCaseDesignToJoin"
-			sourceRef="useCaseDesign" targetRef="parallelGatewayJoin" />
+		<sequenceFlow id="flow2b" name="fromTestCaseDesignToJoin"
+			sourceRef="testCaseDesign" targetRef="parallelGatewayJoin" />
 
 		<sequenceFlow id="flow3a" name="Leg 2" sourceRef="parallelGatewaySplit"
 			targetRef="pageLibraryDesign" />
