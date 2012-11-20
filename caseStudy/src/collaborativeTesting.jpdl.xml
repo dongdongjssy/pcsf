@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <process name="collaborativeTesting" xmlns="http://jbpm.org/4.4/jpdl">
-   <start g="14,155,48,48" name="start1">
+   <start g="19,154,48,48" name="start1">
       <transition to="fork"/>
    </start>
    <task assignee="test case designer" g="176,59,169,52" name="test case designing">

@@ -18,8 +18,13 @@
 		<sequenceFlow id="flow2a" name="Leg 1" sourceRef="parallelGatewaySplit"
 			targetRef="useCaseDesign" />
 
-		<userTask id="useCaseDesign" name="Use Case Design"
-			implementation="other" />
+		<userTask id="useCaseDesign" name="Use Case Design">
+			<humanPerformer resourceRef="designer">
+				<resourceAssignmentExpression>
+					<formalExpression>use case designer</formalExpression>
+				</resourceAssignmentExpression>
+			</humanPerformer>
+		</userTask>
 
 		<sequenceFlow id="flow2b" name="fromUseCaseDesignToJoin"
 			sourceRef="useCaseDesign" targetRef="parallelGatewayJoin" />
@@ -27,8 +32,13 @@
 		<sequenceFlow id="flow3a" name="Leg 2" sourceRef="parallelGatewaySplit"
 			targetRef="pageLibraryDesign" />
 
-		<userTask id="pageLibraryDesign" name="Page Library Design"
-			implementation="other" />
+		<userTask id="pageLibraryDesign" name="Page Library Design">
+			<humanPerformer resourceRef="designer">
+				<resourceAssignmentExpression>
+					<formalExpression>page library designer</formalExpression>
+				</resourceAssignmentExpression>
+			</humanPerformer>
+		</userTask>
 
 		<sequenceFlow id="flow3b" name="fromLeg2ToJoin"
 			sourceRef="pageLibraryDesign" targetRef="parallelGatewayJoin" />
@@ -40,8 +50,13 @@
 			targetRef="testCaseWriting">
 		</sequenceFlow>
 
-		<userTask id="testCaseWriting" name="Test Case Writing"
-			implementation="other" />
+		<userTask id="testCaseWriting" name="Test Case Writing">
+			<humanPerformer resourceRef="developer">
+				<resourceAssignmentExpression>
+					<formalExpression>test case developer</formalExpression>
+				</resourceAssignmentExpression>
+			</humanPerformer>
+		</userTask>
 
 		<sequenceFlow id="flow5" sourceRef="testCaseWriting"
 			targetRef="testCaseRunning">
@@ -54,8 +69,13 @@
 			targetRef="manageCheck">
 		</sequenceFlow>
 
-		<userTask id="manageCheck" name="Manager Check"
-			implementation="other" />
+		<userTask id="manageCheck" name="Manager Check">
+			<humanPerformer resourceRef="manager">
+				<resourceAssignmentExpression>
+					<formalExpression>manager</formalExpression>
+				</resourceAssignmentExpression>
+			</humanPerformer>
+		</userTask>
 
 		<sequenceFlow id="flow7" sourceRef="manageCheck"
 			targetRef="End">

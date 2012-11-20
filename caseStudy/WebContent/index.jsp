@@ -99,7 +99,7 @@
 				<td><%=task.getCreateTime()%></td>
 				<td><%=task.getAssignee()%></td>
 				<td><a
-					href="<%=task.getFormResourceName()%>?id=<%=task.getId()%>">view</a></td>
+					href="submit.jsp?taskId=<%=task.getId()%>">submit</a></td>
 			</tr>
 			<%
 				}
