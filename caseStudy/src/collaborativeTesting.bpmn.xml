@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions id="case_study" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://schema.omg.org/spec/BPMN/2.0 ../../../../../../../../../../bpmn/src/main/resources/BPMN20.xsd"
+	xmlns="http://schema.omg.org/spec/BPMN/2.0" typeLanguage="http://www.w3.org/2001/XMLSchema"
+	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://jbpm.org/example/bpmn2/case study">
+
+	<process id="collaborativeTesting" name="Collaborative Testing">
+
+		<startEvent id="Start" />
+
+		<sequenceFlow id="flow1" name="fromStartToSplit"
+			sourceRef="Start" targetRef="parallelGatewaySplit" />
+
+		<parallelGateway id="parallelGatewaySplit" name="Split"
+			gatewayDirection="diverging" />
+
+		<sequenceFlow id="flow2a" name="Leg 1" sourceRef="parallelGatewaySplit"
+			targetRef="useCaseDesign" />
+
+		<userTask id="useCaseDesign" name="Use Case Design"
+			implementation="other" />
+
+		<sequenceFlow id="flow2b" name="fromUseCaseDesignToJoin"
+			sourceRef="useCaseDesign" targetRef="parallelGatewayJoin" />
+
+		<sequenceFlow id="flow3a" name="Leg 2" sourceRef="parallelGatewaySplit"
+			targetRef="pageLibraryDesign" />
+
+		<userTask id="pageLibraryDesign" name="Page Library Design"
+			implementation="other" />
+
+		<sequenceFlow id="flow3b" name="fromLeg2ToJoin"
+			sourceRef="pageLibraryDesign" targetRef="parallelGatewayJoin" />
+
+		<parallelGateway id="parallelGatewayJoin" name="Join"
+			gatewayDirection="converging" />
+
+		<sequenceFlow id="flow4" sourceRef="parallelGatewayJoin"
+			targetRef="testCaseWriting">
+		</sequenceFlow>
+
+		<userTask id="testCaseWriting" name="Test Case Writing"
+			implementation="other" />
+
+		<sequenceFlow id="flow5" sourceRef="testCaseWriting"
+			targetRef="testCaseRunning">
+		</sequenceFlow>
+
+		<userTask id="testCaseRunning" name="Test Case Running"
+			implementation="other" />
+
+		<sequenceFlow id="flow6" sourceRef="testCaseRunning"
+			targetRef="manageCheck">
+		</sequenceFlow>
+
+		<userTask id="manageCheck" name="Manager Check"
+			implementation="other" />
+
+		<sequenceFlow id="flow7" sourceRef="manageCheck"
+			targetRef="End">
+		</sequenceFlow>
+
+		<endEvent id="End" name="End" />
+
+	</process>
+</definitions>

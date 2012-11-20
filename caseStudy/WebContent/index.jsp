@@ -12,6 +12,7 @@
 	List<ProcessDefinition> pdList = repositoryService.createProcessDefinitionQuery().list();
 	List<ProcessInstance> piList = executionService.createProcessInstanceQuery().list();
 	List<Task> taskList = taskService.findPersonalTasks(username);
+	List<Task> curTaskList = taskService.createTaskQuery().list();
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -83,16 +84,20 @@
 			<tr>
 				<td>id</td>
 				<td>name</td>
-				<td>&nbsp;</td>
+				<td>create time</td>
+				<td>Assignee</td>
+				<td></td>
 			</tr>
 		</thead>
 		<tbody>
 			<%
-				for (Task task : taskList) {
+				for (Task task : curTaskList) {
 			%>
 			<tr>
 				<td><%=task.getId()%></td>
 				<td><%=task.getName()%></td>
+				<td><%=task.getCreateTime()%></td>
+				<td><%=task.getAssignee()%></td>
 				<td><a
 					href="<%=task.getFormResourceName()%>?id=<%=task.getId()%>">view</a></td>
 			</tr>
