@@ -3,7 +3,8 @@
 <definitions id="case_study" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://schema.omg.org/spec/BPMN/2.0 ../../../../../../../../../../bpmn/src/main/resources/BPMN20.xsd"
 	xmlns="http://schema.omg.org/spec/BPMN/2.0" typeLanguage="http://www.w3.org/2001/XMLSchema"
-	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://jbpm.org/example/bpmn2/case study">
+	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://jbpm.org/example/bpmn2/case study"
+	xmlns:jbpm="http://jbpm.org/bpmn2">
 
 	<process id="collaborativeTesting" name="Collaborative Testing">
 
@@ -15,11 +16,11 @@
 		<parallelGateway id="parallelGatewaySplit" name="Split"
 			gatewayDirection="diverging" />
 
-		<sequenceFlow id="flow2a" name="Leg 1" sourceRef="parallelGatewaySplit"
-			targetRef="testCaseDesign" />
+		<sequenceFlow id="flow2a" name="toTestCaseDesign"
+			sourceRef="parallelGatewaySplit" targetRef="testCaseDesign" />
 
 		<userTask id="testCaseDesign" name="Test Case Design">
-			<humanPerformer resourceRef="designer">
+			<humanPerformer resourceRef="designers">
 				<resourceAssignmentExpression>
 					<formalExpression>test case designer</formalExpression>
 				</resourceAssignmentExpression>
@@ -29,18 +30,18 @@
 		<sequenceFlow id="flow2b" name="fromTestCaseDesignToJoin"
 			sourceRef="testCaseDesign" targetRef="parallelGatewayJoin" />
 
-		<sequenceFlow id="flow3a" name="Leg 2" sourceRef="parallelGatewaySplit"
-			targetRef="pageLibraryDesign" />
+		<sequenceFlow id="flow3a" name="toPageLibraryDesign"
+			sourceRef="parallelGatewaySplit" targetRef="pageLibraryDesign" />
 
 		<userTask id="pageLibraryDesign" name="Page Library Design">
-			<humanPerformer resourceRef="designer">
+			<humanPerformer resourceRef="designers">
 				<resourceAssignmentExpression>
 					<formalExpression>page library designer</formalExpression>
 				</resourceAssignmentExpression>
 			</humanPerformer>
 		</userTask>
 
-		<sequenceFlow id="flow3b" name="fromLeg2ToJoin"
+		<sequenceFlow id="flow3b" name="fromPageLibDesignToJoin"
 			sourceRef="pageLibraryDesign" targetRef="parallelGatewayJoin" />
 
 		<parallelGateway id="parallelGatewayJoin" name="Join"
@@ -51,9 +52,9 @@
 		</sequenceFlow>
 
 		<userTask id="testCaseWriting" name="Test Case Writing">
-			<humanPerformer resourceRef="developer">
+			<humanPerformer resourceRef="developers">
 				<resourceAssignmentExpression>
-					<formalExpression>test case developer</formalExpression>
+					<formalExpression>developers</formalExpression>
 				</resourceAssignmentExpression>
 			</humanPerformer>
 		</userTask>
@@ -62,23 +63,22 @@
 			targetRef="testCaseRunning">
 		</sequenceFlow>
 
-		<scriptTask id="testCaseRunning" name="Test Case Running"
-			scriptLanguage="bsh">
-			<script><![CDATA[
-    for(int i=0; i < 10; i++){
-      System.out.println(i + " x 2 = " + (i*2));
-    }]]>
-			</script>
-		</scriptTask>
+		<userTask id="testCaseRunning" name="Test Case Running">
+			<humanPerformer resourceRef="automation systems">
+				<resourceAssignmentExpression>
+					<formalExpression>integrated testing system</formalExpression>
+				</resourceAssignmentExpression>
+			</humanPerformer>
+		</userTask>
 
 		<sequenceFlow id="flow6" sourceRef="testCaseRunning"
 			targetRef="manageCheck">
 		</sequenceFlow>
 
 		<userTask id="manageCheck" name="Manager Check">
-			<humanPerformer resourceRef="manager">
+			<humanPerformer resourceRef="managers">
 				<resourceAssignmentExpression>
-					<formalExpression>manager</formalExpression>
+					<formalExpression>group manager</formalExpression>
 				</resourceAssignmentExpression>
 			</humanPerformer>
 		</userTask>

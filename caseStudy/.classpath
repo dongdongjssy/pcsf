@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="M2_REPO/org/jbpm/jbpm4/jbpm-api/4.4/jbpm-api-4.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jbpm/jbpm4/jbpm-log/4.4/jbpm-log-4.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jbpm/jbpm4/jbpm-bpmn/4.4/jbpm-bpmn-4.4.jar"/>
@@ -27,7 +28,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/javax/persistence/hibernate-jpa-2.0-api/1.0.1.Final/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.2.8/hsqldb-2.2.8.jar"/>
 	<classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.21/mysql-connector-java-5.1.21.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/beanshell/bsh/1.3.0/bsh-1.3.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar"/>
 	<classpathentry kind="output" path="WebContent/WEB-INF/classes"/>
 </classpath>
