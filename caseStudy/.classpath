@@ -19,7 +19,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/livetribe/livetribe-jsr223/2.0.6/livetribe-jsr223-2.0.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jbpm/jbpm4/jbpm-db/4.4/jbpm-db-4.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jbpm/jbpm4/jbpm-jpdl/4.4/jbpm-jpdl-4.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.2/junit-3.8.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.10.0/xercesImpl-2.10.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.6.6/slf4j-log4j12-1.6.6.jar"/>
