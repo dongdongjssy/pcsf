@@ -62,8 +62,14 @@
 			targetRef="testCaseRunning">
 		</sequenceFlow>
 
-		<userTask id="testCaseRunning" name="Test Case Running"
-			implementation="other" />
+		<scriptTask id="testCaseRunning" name="Test Case Running"
+			scriptLanguage="bsh">
+			<script><![CDATA[
+    for(int i=0; i < 10; i++){
+      System.out.println(i + " x 2 = " + (i*2));
+    }]]>
+			</script>
+		</scriptTask>
 
 		<sequenceFlow id="flow6" sourceRef="testCaseRunning"
 			targetRef="manageCheck">
@@ -81,7 +87,9 @@
 			targetRef="End">
 		</sequenceFlow>
 
-		<endEvent id="End" name="End" />
+		<endEvent id="End" name="End">
+			<terminateEventDefinition />
+		</endEvent>
 
 	</process>
 </definitions>
