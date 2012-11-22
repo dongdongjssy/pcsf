@@ -7,6 +7,9 @@
 <title>Upload Page</title>
 </head>
 <body>
+	<%
+		session.setAttribute("UploadPage_CollaborationName", request.getParameter("collaborationName"));
+	%>
 	<form name="uploadForm" action="UploadFile" method="post"
 		enctype="multipart/form-data">
 

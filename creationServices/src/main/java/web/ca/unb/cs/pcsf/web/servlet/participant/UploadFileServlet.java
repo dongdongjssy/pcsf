@@ -1,5 +1,7 @@
 package ca.unb.cs.pcsf.web.servlet.participant;
 
+import static ca.unb.cs.pcsf.web.PCSFWebConstants.SAVE_PATH;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -41,7 +44,8 @@ public class UploadFileServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String collaborationName = request.getParameter("collaborationName");
+		HttpSession session = request.getSession(true);
+		String collaborationName = (String) session.getAttribute("UploadPage_CollaborationName");
 		PcsfUtils utils = new PcsfUtils();
 
 		logger.info("uploading document...");
@@ -62,8 +66,18 @@ public class UploadFileServlet extends HttpServlet {
 						String uploadFileName = uploadFileItem.getName();
 						logger.info("upload file name: " + uploadFileName);
 
-						File uploadFile = File.createTempFile(uploadFileName, null);
-						uploadFile.deleteOnExit();
+						File root = new File(SAVE_PATH);
+						if (!root.exists() || !root.isDirectory())
+							root.mkdir();
+
+						String folderName = SAVE_PATH + File.separator + "tmp";
+						File folder = new File(folderName);
+						if (!folder.exists() && !folder.isDirectory())
+							folder.mkdir();
+
+						String filePath = folderName + File.separator + uploadFileName;
+						File uploadFile = new File(filePath);
+
 						uploadFileItem.write(uploadFile);
 						uploadFileItem.delete();
 
@@ -77,7 +91,7 @@ public class UploadFileServlet extends HttpServlet {
 						String method = "uploadFile";
 						Object[] resultsObjects = utils.callService(wsUrl, method, uploadFileName, collaborationName, bs);
 
-						List<?> results = (ArrayList<?>) resultsObjects[0];
+						// List<?> results = (ArrayList<?>) resultsObjects[0];
 					}
 				}
 			} catch (FileUploadException e1) {

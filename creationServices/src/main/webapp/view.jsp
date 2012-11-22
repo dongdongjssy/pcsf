@@ -124,7 +124,7 @@
 
 	<p>
 		<input type="button" name="backBtn" value="back"
-			onclick="window.location.href='creatorPage.jsp'" />
+			onclick="window.location.href='/pcsf/CreatorDisplay';" />
 	</p>
 
 </body>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="test" xmlns="http://jbpm.org/4.4/jpdl">
+	<start g="74,179,48,48" name="start1">
+		<transition g="-46,-20" name="to task1" to="task1"/>
+	</start>
+	<end g="483,176,48,48" name="end1"/>
+	<task assignee="user" g="183,172,92,52" name="task1">
+      <transition name="to task2" to="task2" g="-46,-20"/>
+	</task>
+   <task name="task2" g="328,172,92,52" assignee="boss">
+      <transition name="to end1" to="end1" g="-45,-20"/>
+   </task>
+</process>

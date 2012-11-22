@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:javaee="http://java.sun.com/xml/ns/javaee"
-	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-	<listener>
-		<javaee:listener-class>
+<web-app xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <listener>
+    <javaee:listener-class>
 			com.sun.xml.ws.transport.http.servlet.WSServletContextListener
 		</javaee:listener-class>
-	</listener>
-	<servlet>
-		<servlet-name>CreationService</servlet-name>
-		<servlet-class>
+  </listener>
+  <servlet>
+    <servlet-name>CreationService</servlet-name>
+    <servlet-class>
 			com.sun.xml.ws.transport.http.servlet.WSServlet
 		</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>CreationService</servlet-name>
-		<url-pattern>/CreationService</url-pattern>
-	</servlet-mapping>
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CreationService</servlet-name>
+    <url-pattern>/CreationService</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
 </web-app>
