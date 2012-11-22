@@ -7,7 +7,7 @@
 <title>Upload Page</title>
 </head>
 <body>
-	<form name="uploadForm" action="Upload" method="post"
+	<form name="uploadForm" action="UploadFile" method="post"
 		enctype="multipart/form-data">
 
 		<input type="file" name="uploadFile" id="uploadFile" />

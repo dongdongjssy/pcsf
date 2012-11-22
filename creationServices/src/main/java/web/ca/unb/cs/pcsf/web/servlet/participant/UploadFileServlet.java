@@ -1,7 +1,9 @@
 package ca.unb.cs.pcsf.web.servlet.participant;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,6 +16,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+import ca.unb.cs.pcsf.web.PcsfUtils;
 
 import com.sun.istack.logging.Logger;
 
@@ -37,6 +41,9 @@ public class UploadFileServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String collaborationName = request.getParameter("collaborationName");
+		PcsfUtils utils = new PcsfUtils();
+
 		logger.info("uploading document...");
 		if (ServletFileUpload.isMultipartContent(request)) {
 			DiskFileItemFactory dff = new DiskFileItemFactory();
@@ -56,9 +63,21 @@ public class UploadFileServlet extends HttpServlet {
 						logger.info("upload file name: " + uploadFileName);
 
 						File uploadFile = File.createTempFile(uploadFileName, null);
+						uploadFile.deleteOnExit();
 						uploadFileItem.write(uploadFile);
 						uploadFileItem.delete();
-						logger.info("finish uploading!");
+
+						FileInputStream inputStream = new FileInputStream(uploadFile);
+						byte[] bs = new byte[inputStream.available()];
+
+						inputStream.read(bs);
+						inputStream.close();
+
+						String wsUrl = utils.getDtrWSUrl(collaborationName);
+						String method = "uploadFile";
+						Object[] resultsObjects = utils.callService(wsUrl, method, uploadFileName, collaborationName, bs);
+
+						List<?> results = (ArrayList<?>) resultsObjects[0];
 					}
 				}
 			} catch (FileUploadException e1) {
@@ -67,6 +86,7 @@ public class UploadFileServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		response.sendRedirect(request.getContextPath() + "/ParticipantDisplay");
 
 	}
 

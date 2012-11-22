@@ -88,11 +88,12 @@
 					for (String info : infos) {
 						out.print("<td class=\"one\">" + info + "</td>");
 					}
-					out.print("<td class=\"one\">Chosse files to upload if have any</br>");
-					out.print("<input type=\"button\" value=\"uploadFile\" onclick=\"window.location.href='upload.jsp';\" />");
+					out.print("<td class=\"one\">Chosse files to upload if have any: ");
+					out.print("<input type=\"button\" value=\"uploadFile\" onclick=\"window.location.href='upload.jsp?collaborationName="
+							+ collaboration.getName() + "';\" /></br></hr>");
 					out.print("<input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
-							+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationId="
-							+ collaboration.getId() + "';\"/></td>");
+							+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationName="
+							+ collaboration.getName() + "&&collaborationId=" + collaboration.getId() + "';\"/></td>");
 					out.print("</tr>");
 				}
 			}
