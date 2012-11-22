@@ -24,8 +24,7 @@
 		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
 		String collaborationId = request.getParameter("collaborationId");
 		Collaboration viewedCollaboration = dbAccess.getCollaborationById(collaborationId);
-		if (viewedCollaboration.getCurrentState().equals(
-				PcsfSimpleDBAccessConstants.COLLABORATION_STATE_NEW_CREATED)) {
+		if (viewedCollaboration.getCurrentState().equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_NEW_CREATED)) {
 	%>
 	<p>This collaboration hasn't been deployed yet!</p>
 	<%
@@ -77,28 +76,22 @@
 							out.print("<td class=\"one\">" + info + "</td>");
 						}
 						out.print("<td class=\"one\">" + viewedCollaboration.getCurrentState() + "</td>");
-						if (!viewedCollaboration.getCurrentState().equals(
-								PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
+						if (!viewedCollaboration.getCurrentState()
+								.equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\"onclick=\"window.location.href='"
-									+ request.getContextPath()
-									+ "/Run?collaborationId="
-									+ collaborationId
-									+ "&&processDeploymentId="
-									+ viewedCollaboration.getProcessDefId()
+									+ request.getContextPath() + "/Run?collaborationId=" + collaborationId
+									+ "&&processDeploymentId=" + viewedCollaboration.getProcessDefId()
 									+ "';\"/><input type=\"button\" value=\"Stop\" disabled/></td>");
 						} else {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\" disabled/><input type=\"button\" value=\"Stop\"onclick=\"window.location.href='"
-									+ request.getContextPath()
-									+ "/Stop?collaborationId="
-									+ collaborationId
-									+ "';\"/></td>");
+									+ request.getContextPath() + "/Stop?collaborationId=" + collaborationId + "';\"/></td>");
 						}
 						out.print("</tr>");
 					}
 		%>
 	</table>
 
-	<p>Current Activity:</p>
+	<p>Current Active Activities:</p>
 	<table class="one">
 		<tr>
 			<th class="one">Task Id</th>

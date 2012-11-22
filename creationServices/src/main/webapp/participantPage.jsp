@@ -21,8 +21,7 @@
 <body>
 	<jsp:include page="common.jsp" />
 	<%
-		Collaboration collaboration = (Collaboration) session
-				.getAttribute(PCSFWebConstants.ATTRIBUTE_COLLABORATION_BEAN);
+		Collaboration collaboration = (Collaboration) session.getAttribute(PCSFWebConstants.ATTRIBUTE_COLLABORATION_BEAN);
 		Participant participant = (Participant) session.getAttribute(PCSFWebConstants.ATTRIBUTE_PARTICIPANT_BEAN);
 		String username = participant.getName();
 		String userId = participant.getId();
@@ -54,9 +53,7 @@
 				out.print("<td class=\"one\">" + collaboration.getCurrentState() + "</td>");
 				if (participant.getIsReg().equals(PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_NO)) {
 					out.print("<td class=\"one\">No <input type=\"button\" value=\"register\" onclick=\"window.location.href='"
-							+ request.getContextPath()
-							+ "/RegisterParticipant?participantId="
-							+ participant.getId()
+							+ request.getContextPath() + "/RegisterParticipant?participantId=" + participant.getId()
 							+ "&&collaborationName=" + collaboration.getName() + "';\"/></td>");
 				} else {
 					out.print("<td class=\"one\">Yes</td>");
@@ -91,12 +88,11 @@
 					for (String info : infos) {
 						out.print("<td class=\"one\">" + info + "</td>");
 					}
-					out.print("<td class=\"one\"><input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
-							+ request.getContextPath()
-							+ "/SubmitTask?taskId="
-							+ infos[0]
-							+ "&&collaborationName="
-							+ collaboration.getName() + "&&collaborationId=" + collaboration.getId() + "';\"/></td>");
+					out.print("<td class=\"one\">Chosse files to upload if have any</br>");
+					out.print("<input type=\"button\" value=\"uploadFile\" onclick=\"window.location.href='upload.jsp';\" />");
+					out.print("<input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
+							+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationId="
+							+ collaboration.getId() + "';\"/></td>");
 					out.print("</tr>");
 				}
 			}
