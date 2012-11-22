@@ -11,7 +11,15 @@
 
 	List<ProcessDefinition> pdList = repositoryService.createProcessDefinitionQuery().list();
 	List<ProcessInstance> piList = executionService.createProcessInstanceQuery().list();
-	List<Task> taskList = taskService.findPersonalTasks(username);
+	List<Task> taskList = new LinkedList<Task>();
+	List<Task> userTaskList = taskService.findPersonalTasks(username);
+	List<Task> groupTaskList = taskService.findGroupTasks(username);
+
+	for (Task task : userTaskList)
+		taskList.add(task);
+	for (Task task : groupTaskList)
+		taskList.add(task);
+
 	List<Task> curTaskList = taskService.createTaskQuery().list();
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -91,15 +99,14 @@
 		</thead>
 		<tbody>
 			<%
-				for (Task task : curTaskList) {
+				for (Task task : taskList) {
 			%>
 			<tr>
 				<td><%=task.getId()%></td>
 				<td><%=task.getName()%></td>
 				<td><%=task.getCreateTime()%></td>
 				<td><%=task.getAssignee()%></td>
-				<td><a
-					href="submit.jsp?taskId=<%=task.getId()%>">submit</a></td>
+				<td><a href="submit.jsp?taskId=<%=task.getId()%>">submit</a></td>
 			</tr>
 			<%
 				}

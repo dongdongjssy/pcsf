@@ -17,9 +17,9 @@
 			gatewayDirection="diverging" />
 
 		<sequenceFlow id="flow2a" name="toTestCaseDesign"
-			sourceRef="parallelGatewaySplit" targetRef="testCaseDesign" />
+			sourceRef="parallelGatewaySplit" targetRef="Test Case Design" />
 
-		<userTask id="testCaseDesign" name="Test Case Design">
+		<userTask id="Test Case Design" name="Test Case Design">
 			<humanPerformer resourceRef="designers">
 				<resourceAssignmentExpression>
 					<formalExpression>test case designer</formalExpression>
@@ -28,12 +28,12 @@
 		</userTask>
 
 		<sequenceFlow id="flow2b" name="fromTestCaseDesignToJoin"
-			sourceRef="testCaseDesign" targetRef="parallelGatewayJoin" />
+			sourceRef="Test Case Design" targetRef="parallelGatewayJoin" />
 
 		<sequenceFlow id="flow3a" name="toPageLibraryDesign"
-			sourceRef="parallelGatewaySplit" targetRef="pageLibraryDesign" />
+			sourceRef="parallelGatewaySplit" targetRef="Page Library Design" />
 
-		<userTask id="pageLibraryDesign" name="Page Library Design">
+		<userTask id="Page Library Design" name="Page Library Design">
 			<humanPerformer resourceRef="designers">
 				<resourceAssignmentExpression>
 					<formalExpression>page library designer</formalExpression>
@@ -42,28 +42,28 @@
 		</userTask>
 
 		<sequenceFlow id="flow3b" name="fromPageLibDesignToJoin"
-			sourceRef="pageLibraryDesign" targetRef="parallelGatewayJoin" />
+			sourceRef="Page Library Design" targetRef="parallelGatewayJoin" />
 
 		<parallelGateway id="parallelGatewayJoin" name="Join"
 			gatewayDirection="converging" />
 
 		<sequenceFlow id="flow4" sourceRef="parallelGatewayJoin"
-			targetRef="testCaseWriting">
+			targetRef="Test Case Writing">
 		</sequenceFlow>
 
-		<userTask id="testCaseWriting" name="Test Case Writing">
-			<humanPerformer resourceRef="developers">
+		<userTask id="Test Case Writing" name="Test Case Writing">
+			<potentialOwner resourceRef="developer">
 				<resourceAssignmentExpression>
 					<formalExpression>developers</formalExpression>
 				</resourceAssignmentExpression>
-			</humanPerformer>
+			</potentialOwner>
 		</userTask>
 
-		<sequenceFlow id="flow5" sourceRef="testCaseWriting"
-			targetRef="testCaseRunning">
+		<sequenceFlow id="flow5" sourceRef="Test Case Writing"
+			targetRef="Test Case Running">
 		</sequenceFlow>
 
-		<userTask id="testCaseRunning" name="Test Case Running">
+		<userTask id="Test Case Running" name="Test Case Running">
 			<humanPerformer resourceRef="automation systems">
 				<resourceAssignmentExpression>
 					<formalExpression>integrated testing system</formalExpression>
@@ -71,11 +71,11 @@
 			</humanPerformer>
 		</userTask>
 
-		<sequenceFlow id="flow6" sourceRef="testCaseRunning"
-			targetRef="manageCheck">
+		<sequenceFlow id="flow6" sourceRef="Test Case Running"
+			targetRef="Manager Check">
 		</sequenceFlow>
 
-		<userTask id="manageCheck" name="Manager Check">
+		<userTask id="Manager Check" name="Manager Check">
 			<humanPerformer resourceRef="managers">
 				<resourceAssignmentExpression>
 					<formalExpression>group manager</formalExpression>
@@ -83,7 +83,7 @@
 			</humanPerformer>
 		</userTask>
 
-		<sequenceFlow id="flow7" sourceRef="manageCheck"
+		<sequenceFlow id="flow7" sourceRef="Manager Check"
 			targetRef="End">
 		</sequenceFlow>
 

@@ -78,6 +78,14 @@ public interface Engine {
 	public List<Task> getCurrentTask();
 
 	/**
+	 * A user takes a task
+	 * 
+	 * @param taskId
+	 * @param username
+	 */
+	public void takeTask(String taskId, String username);
+
+	/**
 	 * Submit task
 	 * 
 	 * @param taskId

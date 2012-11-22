@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<process name="collaborativeTesting" xmlns="http://jbpm.org/4.4/jpdl">
-   <start g="19,154,48,48" name="start1">
-      <transition to="fork"/>
-   </start>
-   <task assignee="test case designer" g="176,59,169,52" name="Test Case Design">
-      <transition g="378,83:" to="join"/>
-   </task>
-   <task assignee="page library designer" g="176,234,178,52" name="Page Library Design">
-      <transition g="380,258:" to="join"/>
-   </task>
-   <task assignee="test case writter" g="433,145,136,52" name="Test Case Writing">
-      <transition to="Test Case Running"/>
-   </task>
-   <task assignee="testing system" g="594,144,146,52" name="Test Case Running">
-      <transition to="Manager Check"/>
-   </task>
-   <fork g="99,153,48,48" name="fork">
-      <transition g="123,86:" to="Test Case Design"/>
-      <transition g="124,261:" to="Page Library Design"/>
-   </fork>
-   <join g="355,148,48,48" name="join">
-      <transition to="Test Case Writing"/>
-   </join>
-   <end g="525,247,48,48" name="end"/>
-   <task assignee="manager" g="601,243,131,52" name="Manager Check">
-      <transition to="end"/>
-   </task>
+<process name="Collaborative Testing" xmlns="http://jbpm.org/4.4/jpdl">
+	<start g="19,154,48,48" name="start1">
+		<transition to="fork" />
+	</start>
+	<task assignee="test case designer" g="176,59,169,52" name="Test Case Design">
+		<transition g="378,83:" to="join" />
+	</task>
+	<task assignee="page library designer" g="176,234,178,52" name="Page Library Design">
+		<transition g="380,258:" to="join" />
+	</task>
+	<task assignee="developers" g="433,145,136,52" name="Test Case Writing">
+		<transition to="Test Case Running" />
+	</task>
+	<task assignee="automation systems" g="594,144,146,52" name="Test Case Running">
+		<transition to="Manager Check" />
+	</task>
+	<fork g="99,153,48,48" name="fork">
+		<transition g="123,86:" to="Test Case Design" />
+		<transition g="124,261:" to="Page Library Design" />
+	</fork>
+	<join g="355,148,48,48" name="join">
+		<transition to="Test Case Writing" />
+	</join>
+	<end g="525,247,48,48" name="end" />
+	<task assignee="managers" g="601,243,131,52" name="Manager Check">
+		<transition to="end" />
+	</task>
 </process>

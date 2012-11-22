@@ -78,4 +78,13 @@ public interface ScheduleNCoordinateService {
 	@WebMethod
 	public void submitTask(String taskId, String collaborationId);
 
+	/**
+	 * A user takes a task
+	 * 
+	 * @param taskId
+	 * @param username
+	 * @param collaborationId
+	 */
+	public void takeTask(String taskId, String username, String collaborationId);
+
 }

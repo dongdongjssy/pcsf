@@ -210,6 +210,21 @@ public class ScheduleNCoordinateServiceImpl implements ScheduleNCoordinateServic
 		logger.debug(LOGPRE + "submitTask() end" + LOGPRE);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ca.unb.cs.pcsf.services.snc.ScheduleNCoordinateService#takeTask(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void takeTask(String taskId, String username, String collaborationId) {
+		logger.debug(LOGPRE + "takeTask() start" + LOGPRE);
+
+		getEngine(collaborationId);
+		engine.takeTask(taskId, username);
+
+		logger.debug(LOGPRE + "takeTask() end" + LOGPRE);
+	}
+
 	/**
 	 * Check if the engine is initilized or not
 	 * 
@@ -244,51 +259,6 @@ public class ScheduleNCoordinateServiceImpl implements ScheduleNCoordinateServic
 			}
 
 			this.engine = EngineFactory.newEngine(new File(workflowModel));
-
-			// get bucket name and key, then download the file from s3
-			// try {
-			// String[] strings = workflowModel.split(",");
-			// bucket = strings[0];
-			// key = strings[1];
-			//
-			// String wsUrl = "http://localhost:8080/dataTransferService/DataTransferService?wsdl";
-			// String method = "downloadFile";
-			// File workflowFile = new File(key);
-			//
-			// Object[] resultsObjects = callService(wsUrl, method, bucket, key);
-			// byte[] bytes = (byte[]) resultsObjects[0];
-			// FileOutputStream outputStream = new FileOutputStream(workflowFile);
-			// outputStream.write(bytes);
-			//
-			// outputStream.close();
-			//
-			// this.engine = EngineFactory.newEngine(workflowFile);
-			// } catch (IOException e) {
-			// e.printStackTrace();
-			// }
 		}
 	}
-
-	/**
-	 * A general method used to call web service.
-	 * 
-	 * @param wsUrl
-	 * @param method
-	 * @param arg
-	 */
-	// private Object[] callService(String wsUrl, String method, Object... arg) {
-	// logger.debug(LOGPRE + "callService() start" + LOGPRE);
-	//
-	// Object[] resutls = null;
-	// JaxWsDynamicClientFactory dcf = JaxWsDynamicClientFactory.newInstance();
-	// Client client = dcf.createClient(wsUrl);
-	// try {
-	// resutls = client.invoke(method, arg);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	//
-	// logger.debug(LOGPRE + "callService() end" + LOGPRE);
-	// return resutls;
-	// }
 }

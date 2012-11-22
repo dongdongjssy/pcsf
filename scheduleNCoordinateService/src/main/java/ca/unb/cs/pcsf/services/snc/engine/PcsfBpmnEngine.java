@@ -7,6 +7,7 @@ package ca.unb.cs.pcsf.services.snc.engine;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -76,8 +77,7 @@ public class PcsfBpmnEngine implements Engine {
 
 		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
 		ReplaceableItem item = new ReplaceableItem(collaborationId);
-		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID,
-				processDeploymentId, true));
+		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID, processDeploymentId, true));
 
 		items.add(item);
 
@@ -95,8 +95,7 @@ public class PcsfBpmnEngine implements Engine {
 	public void startProcess(String collaborationId, String processDepId) {
 		logger.debug(LOGPRE + "startProcess() start" + LOGPRE);
 
-		ProcessDefinition pd = repositoryService.createProcessDefinitionQuery().deploymentId(processDepId).list()
-				.get(0);
+		ProcessDefinition pd = repositoryService.createProcessDefinitionQuery().deploymentId(processDepId).list().get(0);
 
 		// start a process instance
 		logger.info("starting a process instance...");
@@ -105,8 +104,7 @@ public class PcsfBpmnEngine implements Engine {
 		// change collaboration state to be running
 		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
 		ReplaceableItem item = new ReplaceableItem(collaborationId);
-		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
-				COLLABORATION_STATE_RUNNING, true));
+		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_RUNNING, true));
 		items.add(item);
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
 
@@ -159,8 +157,17 @@ public class PcsfBpmnEngine implements Engine {
 	@Override
 	public List<Task> getTasks(String username) {
 		logger.debug(LOGPRE + "getTasks() start" + LOGPRE);
+		List<Task> taskList = new LinkedList<Task>();
+		List<Task> userTaskList = taskService.findPersonalTasks(username);
+		List<Task> groupTaskList = taskService.findGroupTasks(username);
+
+		for (Task task : userTaskList)
+			taskList.add(task);
+		for (Task task : groupTaskList)
+			taskList.add(task);
+
 		logger.debug(LOGPRE + "getTasks() end" + LOGPRE);
-		return taskService.findPersonalTasks(username);
+		return taskList;
 	}
 
 	/*
@@ -185,5 +192,17 @@ public class PcsfBpmnEngine implements Engine {
 		logger.debug(LOGPRE + "submitTask() start" + LOGPRE);
 		taskService.completeTask(taskId);
 		logger.debug(LOGPRE + "submitTask() end" + LOGPRE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ca.unb.cs.pcsf.services.snc.engine.Engine#takeTask(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void takeTask(String taskId, String username) {
+		logger.debug(LOGPRE + "takeTask() start" + LOGPRE);
+		taskService.takeTask(taskId, username);
+		logger.debug(LOGPRE + "takeTask() end" + LOGPRE);
 	}
 }
