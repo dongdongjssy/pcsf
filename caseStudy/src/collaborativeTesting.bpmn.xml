@@ -63,13 +63,13 @@
 			targetRef="Test Case Running">
 		</sequenceFlow>
 
-		<userTask id="Test Case Running" name="Test Case Running">
+		<manualTask id="Test Case Running" name="Test Case Running">
 			<humanPerformer resourceRef="automation systems">
 				<resourceAssignmentExpression>
-					<formalExpression>integrated testing system</formalExpression>
+					<formalExpression>testing system manager</formalExpression>
 				</resourceAssignmentExpression>
 			</humanPerformer>
-		</userTask>
+		</manualTask>
 
 		<sequenceFlow id="flow6" sourceRef="Test Case Running"
 			targetRef="Manager Check">

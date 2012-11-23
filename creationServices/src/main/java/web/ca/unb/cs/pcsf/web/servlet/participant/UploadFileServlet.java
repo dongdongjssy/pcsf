@@ -88,7 +88,7 @@ public class UploadFileServlet extends HttpServlet {
 
 						String wsUrl = utils.getDtrWSUrl(collaborationName);
 						String method = "uploadFile";
-						Object[] resultsObjects = utils.callService(wsUrl, method, uploadFileName, collaborationName, bs);
+						utils.callService(wsUrl, method, uploadFileName, collaborationName, bs);
 
 						// List<?> results = (ArrayList<?>) resultsObjects[0];
 					}
