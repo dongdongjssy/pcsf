@@ -89,8 +89,11 @@
 						out.print("<td class=\"one\">" + info + "</td>");
 					}
 					out.print("<td class=\"one\">Chosse files to upload if have any: ");
-					out.print("<input type=\"button\" value=\"uploadFile\" onclick=\"window.location.href='upload.jsp?collaborationName="
-							+ collaboration.getName() + "';\" /></br></hr>");
+					out.print("<input type=\"button\" value=\"upload\" onclick=\"window.location.href='uploadFile.jsp?collaborationName="
+							+ collaboration.getName() + "';\" /></br>");
+					out.print("Chosse files to download if have any: ");
+					out.print("<input type=\"button\" value=\"download\" onclick=\"window.location.href='downloadFile.jsp?collaborationName="
+							+ collaboration.getName() + "';\" /></br><hr/>");
 					out.print("<input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
 							+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationName="
 							+ collaboration.getName() + "&&collaborationId=" + collaboration.getId() + "';\"/></td>");
