@@ -86,8 +86,8 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
 		TimerTask registrationRequest = new RegisterRequest();
 		TimerTask taskSubmitReques = new TaskSubmitRequest();
 
-		timer.schedule(registrationRequest, new Date(), 1000000);
-		timer.schedule(taskSubmitReques, new Date(), 100000000);
+		timer.schedule(registrationRequest, 86400000, 86400000);
+		timer.schedule(taskSubmitReques, 86400000, 86400000);
 	}
 
 	/*
@@ -209,7 +209,9 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
 		 */
 		@Override
 		public void run() {
+			// get the registration state of all participants
 
+			// send an email to those who has not done registration
 		}
 	}
 
@@ -224,7 +226,9 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
 		 */
 		@Override
 		public void run() {
+			// get the create time of the current task
 
+			// send an email to the assignee if the task is running over time
 		}
 
 	}
