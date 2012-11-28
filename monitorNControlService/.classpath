@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="var" path="M2_REPO/javax/mail/mail/1.4.5/mail-1.4.5.jar" sourcepath="M2_REPO/javax/mail/mail/1.4.5/mail-1.4.5-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/Users/dongdong/Development/m2repo/javax/mail/mail/1.4.5/mail-1.4.5-javadoc.jar!/"/>

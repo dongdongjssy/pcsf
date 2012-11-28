@@ -4,6 +4,7 @@
  */
 package ca.unb.cs.pcsf.services.mnc;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 /**
@@ -14,5 +15,15 @@ import javax.jws.WebService;
  */
 @WebService
 public interface MonitorNControlService {
+	/**
+	 * Start monitor and control service
+	 */
+	@WebMethod
+	public void startMonitor();
 
+	/**
+	 * End monitor and control service
+	 */
+	@WebMethod
+	public void endMonitor();
 }
