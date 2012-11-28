@@ -5,7 +5,6 @@
 package ca.unb.cs.pcsf.services.mnc;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
