@@ -5,9 +5,11 @@ public class TimerTaskTest {
 
 	public void startTask() {
 		Timer timer = new Timer();
-		TimerTask taskSubmitReques = new RegisterRequest(0);
+		TimerTask taskSubmitReques = new TaskSubmitRequest();
+		TimerTask regRequests = new RegisterRequest(1);
 
-		timer.schedule(taskSubmitReques, 2000, 1000);
+		timer.schedule(taskSubmitReques, 2000, 3000);
+		timer.schedule(regRequests, 4000, 1000);
 
 		try {
 			Thread.sleep(10000);
@@ -32,15 +34,18 @@ public class TimerTaskTest {
 			this.i = i;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.TimerTask#run()
-		 */
 		@Override
 		public void run() {
 			System.out.println(i);
 			i++;
 		}
+	}
+
+	class TaskSubmitRequest extends TimerTask {
+		@Override
+		public void run() {
+			System.out.println("[Task Submit Request!]");
+		}
+
 	}
 }
