@@ -21,14 +21,10 @@
 		<module>
   		../monitorNControlService
   	</module>
-		<module>
-  		../pcsfWeb
-  	</module>
-		<module>
-  		../registrationService
-  	</module>
-		<module>
-  		../scheduleNCoordinateService
-  	</module>
+		
+		
+		
+		<module>../registrationService</module>
+		<module>../scheduleNCoordinateService</module>
 	</modules>
 </project>

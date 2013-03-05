@@ -52,7 +52,6 @@
 			<th class="one">Collaboration Name</th>
 			<th class="one">Current State</th>
 			<th class="one">Commands</th>
-			<th class="one">Deployable Pack</th>
 		</tr>
 		<%
 			for (int i = 0; i < collaborations.size(); i++) {
@@ -79,8 +78,6 @@
 								+ request.getContextPath() + "/view.jsp?collaborationId=" + collaboration.getId()
 								+ "';\"/></td>");
 					}
-					out.print("<td class=\"one\"><a href=\"download.jsp?collaborationId=" + collaboration.getId()
-							+ "\">download</a></td>");
 				}
 				out.println("</tr>");
 			}
