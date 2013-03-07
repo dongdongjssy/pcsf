@@ -9,7 +9,6 @@ import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION_ATTRIBUTE_NAME;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION_ATTRIBUTE_PARTICIPANT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION_STATE_DEPLOYED;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.COLLABORATION_STATE_NEW_CREATED;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.CREATOR_ATTRIBUTE_EMAIL;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.CREATOR_ATTRIBUTE_NAME;
@@ -25,13 +24,8 @@ import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_COMMON_C
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_FROM;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_SUBJECT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAX;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_COLLABORATION_ID;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_EMAIL;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_GROUP;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_IS_REG;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_NAME;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_ROLE;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_IS_REG_NO;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SAVE_PATH;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SERVICES_DEPLOY_LOCATION;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SERVICES_SOURCE_LOCATION;
@@ -57,6 +51,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
+
+import ca.unb.cs.pcsf.web.db.Collaboration;
+import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -130,8 +127,7 @@ public class CreationServiceImpl implements CreationService {
 	 * @see ca.unb.cs.pcsf.services.crtservice.CreationService#createCollaboration(java.lang.String, java.util.List,
 	 * java.lang.String, java.lang.String)
 	 */
-	public boolean createCollaboration(String collaborationName, List<String> participants, String creatorId,
-			File workflowFile) {
+	public boolean createCollaboration(String collaborationName, String creatorId, File workflowFile) {
 		logger.debug(LOGPRE + "createCollaboration() start" + LOGPRE);
 
 		// create bucket if not exist
@@ -165,23 +161,12 @@ public class CreationServiceImpl implements CreationService {
 		ReplaceableItem item = new ReplaceableItem(collaborationId);
 		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_NAME, collaborationName, true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, creatorId, true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_NEW_CREATED, true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true));
-
-		for (String p : participants) {
-			String[] infos = p.split(",");
-			if (infos.length == 4) {
-				createParticipant(infos[0], infos[1], infos[2], infos[3], collaborationId);
-				item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, infos[0], true));
-			}
-		}
+				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, "0", true), new ReplaceableAttribute(
+						COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true));
 
 		items.add(item);
 		logger.info("Putting collaboration <" + collaborationName + "> into domain...");
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
-
-		// logger.info("Packing collaboration services...");
-		// packServices(collaborationName, collaborationId);
 
 		logger.info("Collaboration <" + collaborationName + "> has been created successfully!");
 
@@ -198,6 +183,8 @@ public class CreationServiceImpl implements CreationService {
 		// query collaboration from db
 		String collaborationName = "";
 		String creatorId = "";
+		String noOfInstances = "";
+		String workflowFilePath = "";
 		List<String> participantNames = new ArrayList<String>();
 
 		Item findItem = new Item();
@@ -213,18 +200,21 @@ public class CreationServiceImpl implements CreationService {
 					creatorId = attribute.getValue();
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
 					participantNames.add(attribute.getValue());
+				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
+					noOfInstances = attribute.getValue();
+				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL))
+					workflowFilePath = attribute.getValue();
 			}
 
 			logger.info("Deploying collaboration...");
 			// generate collaboration services
 			logger.info("Generating collaboration services...");
-			generateServices(collaborationName);
+			generateServices(collaborationId, collaborationName, noOfInstances, workflowFilePath);
 
-			// change the state of this collaboration.
-			logger.info("Updating collaboration <" + collaborationName + "> state to be" + COLLABORATION_STATE_DEPLOYED);
+			// change the number of instance.
 			List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
-			replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
-					COLLABORATION_STATE_DEPLOYED, true));
+			replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, String
+					.valueOf(Integer.parseInt(noOfInstances) + 1), true));
 			sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationId, replaceableAttributes));
 
 			// send notification to each participant
@@ -335,6 +325,65 @@ public class CreationServiceImpl implements CreationService {
 
 		// delete collaboration from db
 		if (isCollaborationExist(collaborationName)) {
+			sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_COLLABORATION, collaborationId));
+			logger.debug(LOGPRE + "deleteCollaboration() end" + LOGPRE);
+		}
+
+		// delete bucket from s3
+		logger.info("Deleting bucket from s3...");
+		String bucketName = "pcsf-s3-bucket-" + collaborationName;
+		s3.deleteObject(bucketName, collaborationName + ".zip");
+		s3.deleteObject(bucketName, new File(workflowFilePath).getName());
+		s3.deleteBucket(bucketName);
+
+		logger.info("Delete Done!");
+		logger.info("Collaboration <" + collaborationName + "> has been deleted successfully!");
+		logger.debug(LOGPRE + "deleteCollaboration() end" + LOGPRE);
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ca.unb.cs.pcsf.services.crt.CreationService#deleteInstance(java.lang.String)
+	 */
+	public boolean deleteInstance(String collaborationId) {
+		logger.debug(LOGPRE + "deleteInstance() start" + LOGPRE);
+
+		// find collaboration name and work flow file path
+		String collaborationName = "";
+
+		Item findItem = new Item();
+
+		String getCollaborationRequest = "select * from `" + DOMAIN_COLLABORATION + "`";
+		findItem = findItem(collaborationId, getCollaborationRequest);
+		if (findItem != null) {
+			for (Attribute attribute : findItem.getAttributes()) {
+				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_NAME))
+					collaborationName = attribute.getValue();
+			}
+		}
+
+		logger.info("Deleting collaboration <" + collaborationName + ">...");
+
+		// delete collaboration services
+		logger.info("Deleting collaboration services...");
+		File[] services = new File(SERVICES_DEPLOY_LOCATION).listFiles();
+		if (null != services) {
+			for (File service : services) {
+				if (service.isFile() && service.getName().startsWith(collaborationName)) {
+					logger.info(" - deleting service <"
+							+ service.getName().substring(0, service.getName().length() - 4) + ">");
+					delFile(service);
+				}
+				if (service.isDirectory() && service.getName().startsWith(collaborationName)) {
+					delDirectory(service);
+				}
+			}
+		}
+
+		// delete collaboration from db
+		if (isCollaborationExist(collaborationName)) {
 			logger.info("Deleting participants...");
 			List<String> participantNames = new ArrayList<String>();
 
@@ -354,56 +403,36 @@ public class CreationServiceImpl implements CreationService {
 				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where "
 						+ PARTICIPANT_ATTRIBUTE_NAME + " = '" + p + "'";
 				List<Item> items = sdb.select(new SelectRequest(getParticipantRequest)).getItems();
+				String collaborationIndex = collaborationName.split("-")[1];
 
 				if (items != null) {
-					Item item = items.get(0);
-					pid = item.getName();
+					for (Item item : items) {
+						if (item.getName().endsWith(collaborationIndex)) {
+							pid = item.getName();
+							break;
+						}
+					}
 				}
 				sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_PARTICIPANT, pid));
 			}
 			sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_COLLABORATION, collaborationId));
-
-			logger.debug(LOGPRE + "deleteCollaboration() end" + LOGPRE);
 		}
 
-		// delete bucket from s3
-		logger.info("Deleting bucket from s3...");
-		String bucketName = "pcsf-s3-bucket-" + collaborationName;
-		s3.deleteObject(bucketName, collaborationName + ".zip");
-		s3.deleteObject(bucketName, new File(workflowFilePath).getName());
-		s3.deleteBucket(bucketName);
+		String collaborationServiceName = collaborationName.split("-")[0];
+		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
+		Collaboration collaborationService = dbAccess.getCollaborationByName(collaborationServiceName);
+
+		// change the number of instance.
+		List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
+		replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, String
+				.valueOf(Integer.parseInt(collaborationService.getCurrentState()) - 1), true));
+		sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationService.getId(),
+				replaceableAttributes));
 
 		logger.info("Delete Done!");
-		logger.info("Collaboration <" + collaborationName + "> has been deleted successfully!");
-		logger.debug(LOGPRE + "deleteCollaboration() end" + LOGPRE);
+		logger.info("Instance <" + collaborationName + "> has been deleted successfully!");
+		logger.debug(LOGPRE + "deleteInstance() end" + LOGPRE);
 		return true;
-	}
-
-	/**
-	 * Create a new participant.
-	 * 
-	 * @param name
-	 * @param email
-	 * @param collaborationId
-	 * @return a new participant
-	 */
-	private void createParticipant(String name, String email, String role, String group, String collaborationId) {
-		logger.debug(LOGPRE + "createParticipant() start" + LOGPRE);
-
-		String id = this.idGenerator(DOMAIN_PARTICIPANT);
-
-		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-		items.add(new ReplaceableItem(id).withAttributes(new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_NAME, name,
-				true), new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_EMAIL, email, true), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_COLLABORATION_ID, collaborationId, false), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_IS_REG, PARTICIPANT_IS_REG_NO, true), new ReplaceableAttribute(
-				PARTICIPANT_ATTRIBUTE_ROLE, role, true), new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_GROUP, group,
-				true)));
-
-		logger.info("Adding participant <" + name + "> into domain...");
-		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_PARTICIPANT, items));
-
-		logger.debug(LOGPRE + "createParticipant() end" + LOGPRE);
 	}
 
 	/**
@@ -411,11 +440,24 @@ public class CreationServiceImpl implements CreationService {
 	 * 
 	 * @param collaborationName
 	 */
-	private void generateServices(String collaborationName) {
+	private void generateServices(String collaborationId, String collaborationName, String noOfInstance,
+			String workflowFile) {
 		logger.debug(LOGPRE + "generateServices() start" + LOGPRE);
 
+		// add a new instance into simple db
+		String instanceIndex = String.valueOf(Integer.parseInt(noOfInstance) + 1);
+		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
+		ReplaceableItem item = new ReplaceableItem(collaborationId + "-" + instanceIndex);
+		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_NAME, collaborationName + "-"
+				+ instanceIndex, true), new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
+				COLLABORATION_STATE_NEW_CREATED, true), new ReplaceableAttribute(
+				COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile, true));
+
+		items.add(item);
+		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
+
 		String serviceLocation = "";
-		String pcsfEnv = System.getenv("COL_SVR_DEPLOY_LOC");
+		String pcsfEnv = "/home/ec2-user/dev/apache-tomcat-7.0.37/webapps/";
 		if (pcsfEnv.endsWith(File.separator)) {
 			serviceLocation = pcsfEnv + SERVICES_SOURCE_LOCATION;
 		} else {
@@ -430,7 +472,7 @@ public class CreationServiceImpl implements CreationService {
 					logger.info(" - generating collaboration service <" + file.getName() + ">...");
 					try {
 						String deployedName = SERVICES_DEPLOY_LOCATION + File.separator + collaborationName + "-"
-								+ file.getName();
+								+ instanceIndex + "-" + file.getName();
 						copyFile(file, new File(deployedName));
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -440,7 +482,7 @@ public class CreationServiceImpl implements CreationService {
 					logger.info(" - generating collaboration service <" + file.getName() + ">...");
 					String sourceDir = serviceLocation + File.separator + file.getName();
 					String targetDir = SERVICES_DEPLOY_LOCATION + File.separator + collaborationName + "-"
-							+ file.getName();
+							+ instanceIndex + "-" + file.getName();
 					try {
 						copyDirectory(sourceDir, targetDir);
 					} catch (IOException e) {

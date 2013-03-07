@@ -70,8 +70,6 @@ public class CreateServlet extends HttpServlet {
 
 		// get participants
 		Creator creator = (Creator) session.getAttribute(ATTRIBUTE_CREATOR_BEAN);
-		@SuppressWarnings("unchecked")
-		List<Participant> participants = (List<Participant>) session.getAttribute(ATTRIBUTE_ADDED_PARTICIPANTS);
 
 		// get collaboration name and upload file from the form
 		logger.info("creating collaboration...");
@@ -140,19 +138,7 @@ public class CreateServlet extends HttpServlet {
 			}
 		}
 
-		List<String> participantsStrings = new ArrayList<String>();
-		for (Participant p : participants) {
-			String info = "";
-			if (p.getGroup() == null || p.getGroup().equals("")) {
-				info = p.getName() + "," + p.getEmail() + "," + p.getRole() + ",No Group";
-			} else {
-				info = p.getName() + "," + p.getEmail() + "," + p.getRole() + "," + p.getGroup();
-			}
-			logger.debug("convert participant " + p.getName() + " into string");
-			participantsStrings.add(info);
-		}
-
-		creationService.createCollaboration(collaborationName, participantsStrings, creator.getId(), uploadFile);
+		creationService.createCollaboration(collaborationName, creator.getId(), uploadFile);
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {

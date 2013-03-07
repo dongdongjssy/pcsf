@@ -23,13 +23,42 @@
 	<%
 		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
 		String collaborationId = request.getParameter("collaborationId");
+		List<?> participants = (List<?>) session.getAttribute(PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS);
 		Collaboration viewedCollaboration = dbAccess.getCollaborationById(collaborationId);
-		if (viewedCollaboration.getCurrentState().equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_NEW_CREATED)) {
+		if (viewedCollaboration.getParticipants().size() == 0) {
 	%>
-	<p>This collaboration hasn't been deployed yet!</p>
+	<p>Add participants for this instance:</p>
+	<table class="one">
+		<tr class="one">
+			<td class="one">
+				<%
+					if (!participants.isEmpty()) {
+							for (int i = 0; i < participants.size(); i++) {
+								Participant p = (Participant) participants.get(i);
+								out.print(p.getName() + "<input type=\"button\" value=\"-\" onclick=\"window.location.href='"
+										+ request.getContextPath() + "/DeleteParticipant?participantName=" + p.getName()
+										+ "';\" style=\"background:transparent; border-style:none\"/>" + "<br/>");
+							}
+						}
+				%>
+				<hr /> <input type="button" name="addParticipantBtn"
+				value="+ Add Participant"
+				onclick="window.location.href='addParticipant.jsp';" />
+			</td>
+		</tr>
+	</table>
+
+	<p>
+		<%
+			out.print("<input type=\"button\" value=\"Confirm\" onclick=\"window.location.href='"
+						+ request.getContextPath() + "/AddParticipantConfirm?collaborationId="
+						+ viewedCollaboration.getId() + "';\"/><br/>");
+		%>
+	</p>
 	<%
 		} else {
 	%>
+
 	<p>Participants State:</p>
 	<table class="one">
 		<tr class="one">
@@ -37,8 +66,8 @@
 			<th class="one">Has Registered?</th>
 		</tr>
 		<%
-			List<Participant> participants = viewedCollaboration.getParticipants();
-				for (Participant p : participants) {
+			List<Participant> participantsList = viewedCollaboration.getParticipants();
+				for (Participant p : participantsList) {
 					out.print("<tr class=\"one\"><td class=\"one\">" + p.getName() + "</td>");
 					if (p.getIsReg().equals(PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_YES)) {
 						out.print("<td class=\"one\">Yes</td></tr>");
@@ -48,6 +77,7 @@
 				}
 		%>
 	</table>
+
 	<%
 		if (viewedCollaboration.isAllReg()) {
 				PcsfUtils pcsfUtils = new PcsfUtils();
@@ -76,15 +106,21 @@
 							out.print("<td class=\"one\">" + info + "</td>");
 						}
 						out.print("<td class=\"one\">" + viewedCollaboration.getCurrentState() + "</td>");
-						if (!viewedCollaboration.getCurrentState()
-								.equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
+						if (!viewedCollaboration.getCurrentState().equals(
+								PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\"onclick=\"window.location.href='"
-									+ request.getContextPath() + "/Run?collaborationId=" + collaborationId
-									+ "&&processDeploymentId=" + viewedCollaboration.getProcessDefId()
+									+ request.getContextPath()
+									+ "/Run?collaborationId="
+									+ collaborationId
+									+ "&&processDeploymentId="
+									+ viewedCollaboration.getProcessDefId()
 									+ "';\"/><input type=\"button\" value=\"Stop\" disabled/></td>");
 						} else {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\" disabled/><input type=\"button\" value=\"Stop\"onclick=\"window.location.href='"
-									+ request.getContextPath() + "/Stop?collaborationId=" + collaborationId + "';\"/></td>");
+									+ request.getContextPath()
+									+ "/Stop?collaborationId="
+									+ collaborationId
+									+ "';\"/></td>");
 						}
 						out.print("</tr>");
 					}

@@ -63,7 +63,7 @@ public class AddParticipantServlet extends HttpServlet {
 		} else {
 			session.setAttribute(ATTRIBUTE_ADDED_PARTICIPANTS, null);
 			session.setAttribute(ATTRIBUTE_ADDED_PARTICIPANTS, participants);
-			response.sendRedirect("creatorPage.jsp");
+			response.sendRedirect("view.jsp");
 		}
 	}
 

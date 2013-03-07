@@ -29,8 +29,7 @@ public interface CreationService {
 	 * @return a new collaboration
 	 */
 	@WebMethod
-	public boolean createCollaboration(String collaborationName,
-			List<String> participants, String creatorId, File workflowFile);
+	public boolean createCollaboration(String collaborationName, String creatorId, File workflowFile);
 
 	/**
 	 * Deploy a collaboration and generate a set of services for it.
@@ -49,6 +48,14 @@ public interface CreationService {
 	public boolean deleteCollaboration(String collaborationId);
 
 	/**
+	 * Delete a collaboration instance.
+	 * 
+	 * @param collaborationId
+	 */
+	@WebMethod
+	public boolean deleteInstance(String collaborationId);
+
+	/**
 	 * Update a collaboration.
 	 * 
 	 * @param collaborationId
@@ -57,6 +64,6 @@ public interface CreationService {
 	 * @param workflow
 	 */
 	@WebMethod
-	public boolean updateCollaboration(String collaborationId, String collaborationName,
-			List<String> participants, String workflow);
+	public boolean updateCollaboration(String collaborationId, String collaborationName, List<String> participants,
+			String workflow);
 }

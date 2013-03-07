@@ -3,6 +3,7 @@
 <%@page import="ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants"%>
 <%@page import="ca.unb.cs.pcsf.web.db.Participant"%>
 <%@page import="ca.unb.cs.pcsf.web.db.Collaboration"%>
+<%@page import="ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -34,7 +35,6 @@
 <body>
 	<%
 		List<?> collaborations = (List<?>) session.getAttribute(PCSFWebConstants.ATTRIBUTE_COLLABORATION_BEAN);
-		List<?> participants = (List<?>) session.getAttribute(PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS);
 	%>
 	<jsp:include page="common.jsp" />
 	<h2>Collaboration Creator Page</h2>
@@ -48,36 +48,47 @@
 			if (collaborations != null && collaborations.size() != 0) {
 		%>
 		<tr class="one">
-			<th class="one">Collaboration ID</th>
-			<th class="one">Collaboration Name</th>
-			<th class="one">Current State</th>
-			<th class="one">Commands</th>
+			<th class="one">ID</th>
+			<th class="one">Name</th>
+			<th class="one">Command</th>
+			<th class="one">Instances List</th>
 		</tr>
 		<%
-			for (int i = 0; i < collaborations.size(); i++) {
+			PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
+				for (int i = 0; i < collaborations.size(); i++) {
 					Collaboration collaboration = (Collaboration) collaborations.get(i);
 
 					out.print("<tr class=\"one\">");
 					out.print("<td class=\"one\">" + collaboration.getId() + "</td>");
 					out.print("<td class=\"one\">" + collaboration.getName() + "</td>");
-					out.print("<td class=\"one\"><b>" + collaboration.getCurrentState() + "</b></td>");
 					out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
-							+ request.getContextPath() + "/Delete?collaborationId=" + collaboration.getId() + "';\"/>");
+							+ request.getContextPath()
+							+ "/Delete?collaborationId="
+							+ collaboration.getId()
+							+ "';\"/><input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
+							+ request.getContextPath()
+							+ "/Deploy?collaborationId="
+							+ collaboration.getId()
+							+ "';\"/></td>");
 
-					if (collaboration.getCurrentState().equals(
-							PcsfSimpleDBAccessConstants.COLLABORATION_STATE_NEW_CREATED)) {
-						out.print("<input type=\"button\" value=\"Deploy\"onclick=\"window.location.href='"
-								+ request.getContextPath() + "/Deploy?collaborationId=" + collaboration.getId()
-								+ "';\"/>");
-						out.print("<input type=\"button\" value=\"View\" disabled/></td>");
+					if (collaboration.getCurrentState().equals("0")) {
+						out.print("<td class=\"one\">No instance for this collaboration</td>");
+					} else {
+						out.print("<td class=\"one\">" + collaboration.getCurrentState()
+								+ " instance(s) deployed:<br/>");
+						for (int k = 1; k <= Integer.parseInt(collaboration.getCurrentState()); k++) {
+							Collaboration instance = dbAccess.getCollaborationByName(collaboration.getName() + "-" + k);
+							out.print(instance.getName()
+									+ "<input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
+									+ request.getContextPath() + "/DeleteInstance?collaborationId=" + instance.getId()
+									+ "';\"/>");
+							out.print("<input type=\"button\" value=\"View\" onclick=\"window.location.href='"
+									+ request.getContextPath() + "/View?collaborationId=" + instance.getId()
+									+ "';\"/><br/>");
+						}
+						out.print("</td>");
 					}
 
-					else {
-						out.print("<input type=\"button\" value=\"Deploy\" disabled/>");
-						out.print("<input type=\"button\" value=\"View\"onclick=\"window.location.href='"
-								+ request.getContextPath() + "/view.jsp?collaborationId=" + collaboration.getId()
-								+ "';\"/></td>");
-					}
 				}
 				out.println("</tr>");
 			}
@@ -92,24 +103,6 @@
 			<tr class="one">
 				<th align="left" class="one">Collaboration Name:</th>
 				<td class="one"><input type="text" name="collaborationName" /></td>
-			</tr>
-			<tr class="one">
-				<th class="one" align="left">Participants:</th>
-				<td class="one">
-					<%
-						if (!participants.isEmpty()) {
-							for (int i = 0; i < participants.size(); i++) {
-								Participant p = (Participant) participants.get(i);
-								out.print(p.getName() + "<input type=\"button\" value=\"-\" onclick=\"window.location.href='"
-										+ request.getContextPath() + "/DeleteParticipant?participantName=" + p.getName()
-										+ "';\" style=\"background:transparent; border-style:none\"/>" + "<br/>");
-							}
-						}
-					%>
-					<hr /> <input type="button" name="addParticipantBtn"
-					value="+ Add Participant"
-					onclick="window.location.href='addParticipant.jsp';" />
-				</td>
 			</tr>
 			<tr class="one">
 				<th class="one" align="left">Work Flow Definition:</th>

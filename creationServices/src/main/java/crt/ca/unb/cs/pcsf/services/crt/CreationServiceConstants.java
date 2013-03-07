@@ -27,7 +27,7 @@ public class CreationServiceConstants {
 
 	// path
 	public static final String SERVICES_SOURCE_LOCATION = "pcsf" + File.separator + "collaboration services";
-	public static final String SERVICES_DEPLOY_LOCATION = System.getenv("COL_SVR_DEPLOY_LOC");
+	public static final String SERVICES_DEPLOY_LOCATION = "/home/ec2-user/dev/apache-tomcat-7.0.37/webapps/";
 
 	// email
 	public static final String MAIL_FROM = "pcsf.notification@gmail.com";
@@ -69,7 +69,7 @@ public class CreationServiceConstants {
 	public static final String PARTICIPANT_IS_REG_YES = "yes";
 	public static final String PARTICIPANT_NO_GROUP = "No Group";
 
-	// collaboration state
+	// collaboration instance state
 	public static final String COLLABORATION_STATE_NEW_CREATED = "new created";
 	public static final String COLLABORATION_STATE_DEPLOYED = "deployed";
 	public static final String COLLABORATION_STATE_RUNNING = "running";
