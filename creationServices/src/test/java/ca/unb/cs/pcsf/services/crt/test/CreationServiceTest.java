@@ -17,6 +17,9 @@ import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import ca.unb.cs.pcsf.web.db.Collaboration;
+import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
+
 /**
  * @author ddong
  * @version 0.1
@@ -111,7 +114,9 @@ public class CreationServiceTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new CreationServiceTest().zipFile("tmp-");
+		PcsfSimpleDBAccessImpl pcsfSimpleDBAccessImpl = new PcsfSimpleDBAccessImpl();
+		Collaboration collaboration = pcsfSimpleDBAccessImpl.getCollaborationById("pcsf-377963");
+		System.out.println(collaboration.getParticipants().size());
 	}
 
 	public static void generateConf(String name) throws IOException {

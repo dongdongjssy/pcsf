@@ -8,6 +8,7 @@ import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ERR_MSG;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.COMMON_PAGE_ERROR;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ERR_MSG_USER_ALREADY_EXIST;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_NO;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,12 +47,15 @@ public class AddParticipantServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(true);
+		String collaborationId = (String) session.getAttribute("viewedCollaborationInstanceId");
 
 		Participant participant = new Participant();
+		participant.setCollaborationId(collaborationId);
 		participant.setName(request.getParameter("username"));
 		participant.setEmail(request.getParameter("email"));
 		participant.setRole(request.getParameter("role"));
 		participant.setGroup(request.getParameter("group"));
+		participant.setIsReg(PARTICIPANT_IS_REG_NO);
 
 		@SuppressWarnings("unchecked")
 		List<Participant> participants = (List<Participant>) session.getAttribute(ATTRIBUTE_ADDED_PARTICIPANTS);
@@ -63,7 +67,7 @@ public class AddParticipantServlet extends HttpServlet {
 		} else {
 			session.setAttribute(ATTRIBUTE_ADDED_PARTICIPANTS, null);
 			session.setAttribute(ATTRIBUTE_ADDED_PARTICIPANTS, participants);
-			response.sendRedirect("view.jsp");
+			response.sendRedirect("view.jsp?collaborationId=" + collaborationId);
 		}
 	}
 
@@ -97,5 +101,4 @@ public class AddParticipantServlet extends HttpServlet {
 
 		return isAdded;
 	}
-
 }

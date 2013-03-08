@@ -68,6 +68,14 @@ public interface PcsfSimpleDBAccess {
 	public void updateCollaborationState(Collaboration collaboration, String state);
 
 	/**
+	 * Update the participant list of a collaboration instance
+	 * 
+	 * @param collaborationId
+	 * @param participantList
+	 */
+	public void updateInstanceParticipantList(String collaborationId, List<String> participantList);
+
+	/**
 	 * Get all creators' IDs.
 	 * 
 	 * @return ID list

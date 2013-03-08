@@ -23,6 +23,7 @@
 	<%
 		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
 		String collaborationId = request.getParameter("collaborationId");
+		session.setAttribute("viewedCollaborationInstanceId", collaborationId);
 		List<?> participants = (List<?>) session.getAttribute(PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS);
 		Collaboration viewedCollaboration = dbAccess.getCollaborationById(collaborationId);
 		if (viewedCollaboration.getParticipants().size() == 0) {
@@ -46,15 +47,17 @@
 				onclick="window.location.href='addParticipant.jsp';" />
 			</td>
 		</tr>
-	</table>
 
-	<p>
-		<%
-			out.print("<input type=\"button\" value=\"Confirm\" onclick=\"window.location.href='"
-						+ request.getContextPath() + "/AddParticipantConfirm?collaborationId="
-						+ viewedCollaboration.getId() + "';\"/><br/>");
-		%>
-	</p>
+		<tr class="one">
+			<td class="one">
+				<%
+					out.print("<input type=\"button\" value=\"Confirm\" onclick=\"window.location.href='"
+								+ request.getContextPath() + "/AddParticipantConfirm?collaborationId="
+								+ viewedCollaboration.getId() + "';\"/><br/>");
+				%>
+			</td>
+		</tr>
+	</table>
 	<%
 		} else {
 	%>

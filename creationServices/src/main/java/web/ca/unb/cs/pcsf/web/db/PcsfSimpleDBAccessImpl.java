@@ -4,9 +4,15 @@
  */
 package ca.unb.cs.pcsf.web.db;
 
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.*;
+import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_COLLABORATION;
+import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_CREATOR;
+import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_PARTICIPANT;
+import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.LOGPRE;
+import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAX;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_CREATOR_ID;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_CURRENT_STATE;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_NAME;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_PACKAGE;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_PARTICIPANT;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL;
@@ -14,18 +20,17 @@ import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.CREATOR_ATTRIBUTE_E
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.CREATOR_ATTRIBUTE_NAME;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.CREATOR_ATTRIBUTE_PASSWORD;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.CREDENTIAL_FILE_PATH;
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.DOMAIN_COLLABORATION;
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.DOMAIN_CREATOR;
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.DOMAIN_PARTICIPANT;
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.LOGPRE;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_COLLABORATION_ID;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_EMAIL;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_GROUP;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_IS_REG;
 import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_NAME;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.PARTICIPANT_ATTRIBUTE_ROLE;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -226,7 +231,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		if (object instanceof Participant) {
 			Participant participant = (Participant) object;
 			List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-			items.add(new ReplaceableItem(participant.getId()).withAttributes(new ReplaceableAttribute(
+			items.add(new ReplaceableItem(idGenerator(DOMAIN_PARTICIPANT)).withAttributes(new ReplaceableAttribute(
 					PARTICIPANT_ATTRIBUTE_NAME, participant.getName(), true), new ReplaceableAttribute(
 					PARTICIPANT_ATTRIBUTE_EMAIL, participant.getEmail(), true), new ReplaceableAttribute(
 					PARTICIPANT_ATTRIBUTE_COLLABORATION_ID, participant.getCollaborationId(), false),
@@ -362,6 +367,27 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		sdb.putAttributes(new PutAttributesRequest(domainName, itemName, replaceableAttributes));
 
 		logger.debug(LOGPRE + "updateCollaborationState() end" + LOGPRE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccess#updateInstanceParticipantList(java.lang.String, java.util.List)
+	 */
+	public void updateInstanceParticipantList(String collaborationId, List<String> participantList) {
+		logger.debug(LOGPRE + "updateInstanceParticipantList() start" + LOGPRE);
+
+		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
+		ReplaceableItem item = new ReplaceableItem(collaborationId);
+
+		for (String participant : participantList)
+			item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, participant, true));
+
+		items.add(item);
+
+		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
+
+		logger.debug(LOGPRE + "updateInstanceParticipantList() end" + LOGPRE);
 	}
 
 	/*
@@ -543,7 +569,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 			}
 
 			for (String s : participantNames) {
-				Participant p = this.getParticipantByNameAndCollaborationId(s, findItem.getName());
+				Participant p = this.getParticipantById(s);
 				participants.add(p);
 			}
 
@@ -588,7 +614,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		}
 
 		for (String s : participantNames) {
-			Participant p = this.getParticipantByNameAndCollaborationId(s, findItem.getName());
+			Participant p = this.getParticipantById(s);
 			participants.add(p);
 		}
 
@@ -596,45 +622,6 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 
 		logger.debug(LOGPRE + "getCollaborationByName() end" + LOGPRE);
 		return collaboration;
-	}
-
-	/**
-	 * Get a participant record from the data base by name and collaboration id.
-	 * 
-	 * @param participantName
-	 * @param collaborationId
-	 * @return a participant
-	 */
-	private Participant getParticipantByNameAndCollaborationId(String participantName, String collaborationId) {
-		logger.debug(LOGPRE + "getParticipantByNameAndCollaborationId() start" + LOGPRE);
-
-		Participant participant = new Participant();
-		String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME
-				+ " = '" + participantName + "' AND " + PARTICIPANT_ATTRIBUTE_COLLABORATION_ID + "='" + collaborationId
-				+ "'";
-		List<Item> items = this.getDataFromDomain(selectRequest);
-
-		if (items != null) {
-			Item item = items.get(0);
-			participant.setId(item.getName());
-			for (Attribute attribute : item.getAttributes()) {
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_NAME))
-					participant.setName(attribute.getValue());
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_EMAIL))
-					participant.setEmail(attribute.getValue());
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_COLLABORATION_ID))
-					participant.setCollaborationId(attribute.getValue());
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_IS_REG))
-					participant.setIsReg(attribute.getValue());
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_ROLE))
-					participant.setRole(attribute.getValue());
-				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_GROUP))
-					participant.setGroup(attribute.getValue());
-			}
-		}
-
-		logger.debug(LOGPRE + "getParticipantByNameAndCollaborationId() end" + LOGPRE);
-		return participant;
 	}
 
 	/*
@@ -653,8 +640,6 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		if (!items.isEmpty()) {
 			for (Item item : items) {
 				Collaboration collaboration = new Collaboration();
-				List<String> users = new ArrayList<String>();
-				List<Participant> participants = new ArrayList<Participant>();
 				collaboration.setId(item.getName());
 				for (Attribute attribute : item.getAttributes()) {
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_NAME))
@@ -663,20 +648,13 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 						collaboration.setCreatorId(attribute.getValue());
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
 						collaboration.setCurrentState(attribute.getValue());
-					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-						users.add(attribute.getValue());
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL))
 						collaboration.setWorkflowModel(attribute.getValue());
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PACKAGE))
 						collaboration.setPackageLocation(attribute.getValue());
 				}
 
-				for (String user : users) {
-					Participant p = this.getParticipantByNameAndCollaborationId(user, collaboration.getId());
-					participants.add(p);
-				}
-
-				collaboration.setParticipants(participants);
+				collaboration.setParticipants(null);
 				collaborations.add(collaboration);
 			}
 		}
@@ -727,5 +705,44 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 
 		logger.debug(LOGPRE + "getParticipantById() end" + LOGPRE);
 		return participant;
+	}
+
+	/**
+	 * Generate a random id for new user or collaboration.
+	 * 
+	 * @param domainName
+	 * @return random id
+	 */
+	private String idGenerator(String domainName) {
+		logger.debug(LOGPRE + "idGenerator() start" + LOGPRE);
+
+		Random random = new Random(System.currentTimeMillis());
+		String id = String.valueOf(((int) (random.nextDouble() * MAX)) + 1);
+		boolean isDuplicated = true;
+
+		String selectExpression = "";
+		logger.info("generating id for participant ...");
+		selectExpression = "select * from `" + DOMAIN_PARTICIPANT + "`";
+
+		List<String> ids = new ArrayList<String>();
+		List<Item> items = sdb.select(new SelectRequest(selectExpression)).getItems();
+		if (!items.isEmpty()) {
+			for (Item item : items) {
+				ids.add(item.getName());
+			}
+		}
+		while (isDuplicated) {
+			isDuplicated = false;
+			for (String s : ids) {
+				if (s.equals(id)) {
+					isDuplicated = true;
+					id = String.valueOf(((int) (random.nextDouble() * MAX)) + 1);
+					break;
+				}
+			}
+		}
+
+		logger.debug(LOGPRE + "idGenerator() end" + LOGPRE);
+		return "pcsf-" + id;
 	}
 }

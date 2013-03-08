@@ -77,14 +77,13 @@
 						out.print("<td class=\"one\">" + collaboration.getCurrentState()
 								+ " instance(s) deployed:<br/>");
 						for (int k = 1; k <= Integer.parseInt(collaboration.getCurrentState()); k++) {
-							Collaboration instance = dbAccess.getCollaborationByName(collaboration.getName() + "-" + k);
-							out.print(instance.getName()
+							out.print(collaboration.getName() + "-" + k
 									+ "<input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
-									+ request.getContextPath() + "/DeleteInstance?collaborationId=" + instance.getId()
-									+ "';\"/>");
+									+ request.getContextPath() + "/DeleteInstance?collaborationId="
+									+ collaboration.getId() + "-" + k + "';\"/>");
 							out.print("<input type=\"button\" value=\"View\" onclick=\"window.location.href='"
-									+ request.getContextPath() + "/View?collaborationId=" + instance.getId()
-									+ "';\"/><br/>");
+									+ request.getContextPath() + "/View?collaborationId=" + collaboration.getId() + "-"
+									+ k + "';\"/><br/>");
 						}
 						out.print("</td>");
 					}

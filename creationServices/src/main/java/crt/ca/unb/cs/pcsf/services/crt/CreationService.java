@@ -5,7 +5,6 @@
 package ca.unb.cs.pcsf.services.crt;
 
 import java.io.File;
-import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -54,16 +53,4 @@ public interface CreationService {
 	 */
 	@WebMethod
 	public boolean deleteInstance(String collaborationId);
-
-	/**
-	 * Update a collaboration.
-	 * 
-	 * @param collaborationId
-	 * @param collaborationName
-	 * @param participants
-	 * @param workflow
-	 */
-	@WebMethod
-	public boolean updateCollaboration(String collaborationId, String collaborationName, List<String> participants,
-			String workflow);
 }

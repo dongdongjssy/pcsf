@@ -17,15 +17,11 @@ import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_COLLAB
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_CREATOR;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.DOMAIN_PARTICIPANT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.LINK_CREATOR;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.LINK_PARTICIPANT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.LOGPRE;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_COMMON_CONTENT_FOR_CREATOR;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_COMMON_CONTENT_FOR_PARTICIPANT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_FROM;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_SUBJECT;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAX;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_EMAIL;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.PARTICIPANT_ATTRIBUTE_NAME;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SAVE_PATH;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SERVICES_DEPLOY_LOCATION;
 import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.SERVICES_SOURCE_LOCATION;
@@ -51,9 +47,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
-
-import ca.unb.cs.pcsf.web.db.Collaboration;
-import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -162,7 +155,8 @@ public class CreationServiceImpl implements CreationService {
 		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_NAME, collaborationName, true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, creatorId, true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, "0", true), new ReplaceableAttribute(
-						COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true));
+						COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true),
+				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "", true));
 
 		items.add(item);
 		logger.info("Putting collaboration <" + collaborationName + "> into domain...");
@@ -185,7 +179,6 @@ public class CreationServiceImpl implements CreationService {
 		String creatorId = "";
 		String noOfInstances = "";
 		String workflowFilePath = "";
-		List<String> participantNames = new ArrayList<String>();
 
 		Item findItem = new Item();
 
@@ -198,46 +191,22 @@ public class CreationServiceImpl implements CreationService {
 					collaborationName = attribute.getValue();
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CREATOR_ID))
 					creatorId = attribute.getValue();
-				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-					participantNames.add(attribute.getValue());
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
 					noOfInstances = attribute.getValue();
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL))
 					workflowFilePath = attribute.getValue();
 			}
 
-			logger.info("Deploying collaboration...");
+			logger.info("Deploying collaboration instance...");
 			// generate collaboration services
 			logger.info("Generating collaboration services...");
 			generateServices(collaborationId, collaborationName, noOfInstances, workflowFilePath);
 
-			// change the number of instance.
+			// increase the number of instance.
 			List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
 			replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, String
 					.valueOf(Integer.parseInt(noOfInstances) + 1), true));
 			sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationId, replaceableAttributes));
-
-			// send notification to each participant
-			logger.info("Sending an email to each participant...");
-			for (String p : participantNames) {
-				String email = "";
-				String id = "";
-				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where "
-						+ PARTICIPANT_ATTRIBUTE_NAME + " = '" + p + "'";
-				List<Item> items = sdb.select(new SelectRequest(getParticipantRequest)).getItems();
-
-				if (items != null) {
-					Item item = items.get(0);
-					id = item.getName();
-					for (Attribute attribute : item.getAttributes()) {
-						if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_EMAIL)) {
-							email = attribute.getValue();
-							break;
-						}
-					}
-				}
-				sendParticipantNotificationMail(email, p, id);
-			}
 
 			// send notification email to creator
 			logger.info("Sending an email to creator...");
@@ -257,21 +226,6 @@ public class CreationServiceImpl implements CreationService {
 			}
 			sendCreatorNotificationMail(creatorEmail, creatorName);
 		}
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ca.unb.cs.pcsf.services.crtservice.CreationService#updateCollaboration(java.lang.String, java.util.List,
-	 * java.lang.String)
-	 */
-	public boolean updateCollaboration(String collaborationId, String collaborationName, List<String> participants,
-			String workflow) {
-		logger.debug(LOGPRE + "updateCollaboration() start" + LOGPRE);
-
-		logger.info("Collaboration <" + collaborationName + "> has been updated Successfully!");
-		logger.debug(LOGPRE + "updateCollaboration() end" + LOGPRE);
 		return true;
 	}
 
@@ -399,34 +353,27 @@ public class CreationServiceImpl implements CreationService {
 
 			for (String p : participantNames) {
 				logger.info(" - deleting participant <" + p + ">...");
-				String pid = "";
-				String getParticipantRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where "
-						+ PARTICIPANT_ATTRIBUTE_NAME + " = '" + p + "'";
-				List<Item> items = sdb.select(new SelectRequest(getParticipantRequest)).getItems();
-				String collaborationIndex = collaborationName.split("-")[1];
-
-				if (items != null) {
-					for (Item item : items) {
-						if (item.getName().endsWith(collaborationIndex)) {
-							pid = item.getName();
-							break;
-						}
-					}
+				if (p != null && !p.equals("")) {
+					sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_PARTICIPANT, p));
 				}
-				sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_PARTICIPANT, pid));
 			}
 			sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_COLLABORATION, collaborationId));
 		}
 
 		String collaborationServiceName = collaborationName.split("-")[0];
-		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
-		Collaboration collaborationService = dbAccess.getCollaborationByName(collaborationServiceName);
-
+		String selectExpression = "select * from `" + DOMAIN_COLLABORATION + "` where " + COLLABORATION_ATTRIBUTE_NAME
+				+ "='" + collaborationServiceName + "'";
+		Item collaborationServiceItem = sdb.select(new SelectRequest(selectExpression)).getItems().get(0);
+		String instanceCount = "";
+		for (Attribute attribute : collaborationServiceItem.getAttributes()) {
+			if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
+				instanceCount = attribute.getValue();
+		}
 		// change the number of instance.
 		List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
 		replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, String
-				.valueOf(Integer.parseInt(collaborationService.getCurrentState()) - 1), true));
-		sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationService.getId(),
+				.valueOf(Integer.parseInt(instanceCount) - 1), true));
+		sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationServiceItem.getName(),
 				replaceableAttributes));
 
 		logger.info("Delete Done!");
@@ -451,7 +398,8 @@ public class CreationServiceImpl implements CreationService {
 		item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_NAME, collaborationName + "-"
 				+ instanceIndex, true), new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
 				COLLABORATION_STATE_NEW_CREATED, true), new ReplaceableAttribute(
-				COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile, true));
+				COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile, true), new ReplaceableAttribute(
+				COLLABORATION_ATTRIBUTE_PARTICIPANT, "", true));
 
 		items.add(item);
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
@@ -643,54 +591,6 @@ public class CreationServiceImpl implements CreationService {
 		}
 
 		logger.debug(LOGPRE + "sendCreatorNotificationMail() end" + LOGPRE);
-	}
-
-	/**
-	 * Send a notification to participant notifying new collaboration creation.
-	 * 
-	 * @param pEmail
-	 * @param pName
-	 */
-	private void sendParticipantNotificationMail(String pEmail, String pName, String pId) {
-		logger.debug(LOGPRE + "sendParticipantNotificationMail() start" + LOGPRE);
-
-		this.verifyEmailAddress(ses);
-		Properties props = new Properties();
-		props.setProperty("mail.transport.protocol", "aws");
-		props.setProperty("mail.aws.user", credentials.getAWSAccessKeyId());
-		props.setProperty("mail.aws.password", credentials.getAWSSecretKey());
-
-		Session session = Session.getInstance(props);
-		try {
-			// Create a new Message
-			Message msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress(MAIL_FROM));
-			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(pEmail));
-			msg.setSubject(MAIL_SUBJECT);
-			msg.setText("Dear " + pName + ",\n\n" + MAIL_COMMON_CONTENT_FOR_PARTICIPANT + "Your id: " + pId + "\n"
-					+ LINK_PARTICIPANT);
-			msg.saveChanges();
-
-			// Reuse one Transport object for sending all your messages
-			// for better performance
-			Transport t = new AWSJavaMailTransport(session, null);
-			t.connect();
-			t.sendMessage(msg, null);
-			logger.info("one mail sent to participant notifying the new created collaboration!");
-
-			t.close();
-		} catch (AddressException e) {
-			e.printStackTrace();
-			logger.info("Caught an AddressException, which means one or more of your "
-					+ "addresses are improperly formatted.");
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			logger.info("Caught a MessagingException, which means that there was a "
-					+ "problem sending your message to Amazon's E-mail Service check the "
-					+ "stack trace for more information.");
-		}
-
-		logger.debug(LOGPRE + "sendParticipantNotificationMail() end" + LOGPRE);
 	}
 
 	/**

@@ -4,7 +4,6 @@
  */
 package ca.unb.cs.pcsf.web.servlet.collaboration;
 
-import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_CREATOR_BEAN;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ERR_MSG;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.COMMON_PAGE_ERROR;
@@ -13,7 +12,6 @@ import static ca.unb.cs.pcsf.web.PCSFWebConstants.SAVE_PATH;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -31,7 +29,6 @@ import org.apache.log4j.Logger;
 
 import ca.unb.cs.pcsf.services.crt.CreationServiceImpl;
 import ca.unb.cs.pcsf.web.db.Creator;
-import ca.unb.cs.pcsf.web.db.Participant;
 import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
 
 /**

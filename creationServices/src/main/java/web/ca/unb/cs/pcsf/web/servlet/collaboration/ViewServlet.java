@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ca.unb.cs.pcsf.web.db.Participant;
-import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
 
 /**
  * Servlet implementation class CreatorDisplayServlet
