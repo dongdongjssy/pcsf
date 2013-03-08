@@ -156,7 +156,7 @@ public class CreationServiceImpl implements CreationService {
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, creatorId, true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, "0", true), new ReplaceableAttribute(
 						COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile.getAbsolutePath(), true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "", true));
+				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "NO DATA", true));
 
 		items.add(item);
 		logger.info("Putting collaboration <" + collaborationName + "> into domain...");
@@ -399,7 +399,7 @@ public class CreationServiceImpl implements CreationService {
 				+ instanceIndex, true), new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
 				COLLABORATION_STATE_NEW_CREATED, true), new ReplaceableAttribute(
 				COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, workflowFile, true), new ReplaceableAttribute(
-				COLLABORATION_ATTRIBUTE_PARTICIPANT, "", true));
+				COLLABORATION_ATTRIBUTE_PARTICIPANT, "NO DATA", true));
 
 		items.add(item);
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));

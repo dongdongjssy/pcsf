@@ -73,7 +73,7 @@ public interface PcsfSimpleDBAccess {
 	 * @param collaborationId
 	 * @param participantList
 	 */
-	public void updateInstanceParticipantList(String collaborationId, List<String> participantList);
+	public void updateInstanceParticipantList(String collaborationId, String participantList);
 
 	/**
 	 * Get all creators' IDs.
@@ -143,4 +143,13 @@ public interface PcsfSimpleDBAccess {
 	 * @return a participant
 	 */
 	public Participant getParticipantById(String participantId);
+
+	/**
+	 * Get a participant record from the data base by name.
+	 * 
+	 * @param participantName
+	 * @param collaborationId
+	 * @return a participant
+	 */
+	public Participant getParticipantByNameAndCollaborationId(String participantName, String collaborationId);
 }

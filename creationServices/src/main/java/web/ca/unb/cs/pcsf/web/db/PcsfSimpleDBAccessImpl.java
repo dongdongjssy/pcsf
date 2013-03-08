@@ -46,6 +46,7 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.ReplaceableItem;
 import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.sun.corba.se.spi.orb.StringPair;
 
 /**
  * @author dongdong
@@ -358,13 +359,9 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		logger.debug(LOGPRE + "updateCollaborationState() start" + LOGPRE);
 
 		logger.info("Updating collaboration <" + collaboration.getName() + "> state to be <" + state + ">");
-		String domainName = DOMAIN_COLLABORATION;
-		String itemName = collaboration.getId();
 		List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
-
 		replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, state, true));
-
-		sdb.putAttributes(new PutAttributesRequest(domainName, itemName, replaceableAttributes));
+		sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaboration.getId(), replaceableAttributes));
 
 		logger.debug(LOGPRE + "updateCollaborationState() end" + LOGPRE);
 	}
@@ -374,18 +371,12 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 	 * 
 	 * @see ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccess#updateInstanceParticipantList(java.lang.String, java.util.List)
 	 */
-	public void updateInstanceParticipantList(String collaborationId, List<String> participantList) {
+	public void updateInstanceParticipantList(String collaborationId, String participantList) {
 		logger.debug(LOGPRE + "updateInstanceParticipantList() start" + LOGPRE);
 
-		List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-		ReplaceableItem item = new ReplaceableItem(collaborationId);
-
-		for (String participant : participantList)
-			item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, participant, true));
-
-		items.add(item);
-
-		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
+		List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
+		replaceableAttributes.add(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, participantList, true));
+		sdb.putAttributes(new PutAttributesRequest(DOMAIN_COLLABORATION, collaborationId, replaceableAttributes));
 
 		logger.debug(LOGPRE + "updateInstanceParticipantList() end" + LOGPRE);
 	}
@@ -547,7 +538,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		}
 
 		if (findItem != null) {
-			List<String> participantNames = new ArrayList<String>();
+			String participantNames = "";
 			List<Participant> participants = new ArrayList<Participant>();
 
 			collaboration.setId(findItem.getName());
@@ -559,7 +550,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
 					collaboration.setCurrentState(attribute.getValue());
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-					participantNames.add(attribute.getValue());
+					participantNames = attribute.getValue();
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL))
 					collaboration.setWorkflowModel(attribute.getValue());
 				if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID))
@@ -568,12 +559,17 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 					collaboration.setPackageLocation(attribute.getValue());
 			}
 
-			for (String s : participantNames) {
-				Participant p = this.getParticipantById(s);
-				participants.add(p);
-			}
+			if (!participantNames.equals("NO DATA")) {
+				String[] names = participantNames.split(":");
+				for (String s : names) {
+					Participant p = this.getParticipantById(s);
+					participants.add(p);
+				}
 
-			collaboration.setParticipants(participants);
+				collaboration.setParticipants(participants);
+			} else {
+				collaboration.setParticipants(null);
+			}
 		}
 
 		logger.debug(LOGPRE + "getCollaborationById() end" + LOGPRE);
@@ -594,7 +590,7 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 				+ "='" + collaborationName + "'";
 		Item findItem = this.getDataFromDomain(selectExpression).get(0);
 
-		List<String> participantNames = new ArrayList<String>();
+		String participantNames = "";
 		List<Participant> participants = new ArrayList<Participant>();
 
 		collaboration.setId(findItem.getName());
@@ -606,19 +602,24 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 			if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
 				collaboration.setCurrentState(attribute.getValue());
 			if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-				participantNames.add(attribute.getValue());
+				participantNames = attribute.getValue();
 			if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL))
 				collaboration.setWorkflowModel(attribute.getValue());
 			if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PACKAGE))
 				collaboration.setPackageLocation(attribute.getValue());
 		}
 
-		for (String s : participantNames) {
-			Participant p = this.getParticipantById(s);
-			participants.add(p);
-		}
+		if (!participantNames.equals("NO DATA")) {
+			String[] names = participantNames.split(":");
+			for (String s : names) {
+				Participant p = this.getParticipantById(s);
+				participants.add(p);
+			}
 
-		collaboration.setParticipants(participants);
+			collaboration.setParticipants(participants);
+		} else {
+			collaboration.setParticipants(null);
+		}
 
 		logger.debug(LOGPRE + "getCollaborationByName() end" + LOGPRE);
 		return collaboration;
@@ -704,6 +705,44 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		}
 
 		logger.debug(LOGPRE + "getParticipantById() end" + LOGPRE);
+		return participant;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccess#getParticipantByNameAndCollaborationId(java.lang.String,
+	 * java.lang.String)
+	 */
+	public Participant getParticipantByNameAndCollaborationId(String participantName, String collaborationId) {
+		logger.debug(LOGPRE + "getParticipantByName() start" + LOGPRE);
+
+		Participant participant = new Participant();
+		String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME
+				+ " = '" + participantName + "' AND " + PARTICIPANT_ATTRIBUTE_COLLABORATION_ID + " = '"
+				+ collaborationId + "'";
+		System.out.println("!!!!!!!" + selectRequest + "!!!!!!!");
+		List<Item> items = this.getDataFromDomain(selectRequest);
+		if (items != null) {
+			Item findItem = items.get(0);
+			participant.setId(findItem.getName());
+			for (Attribute attribute : findItem.getAttributes()) {
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_NAME))
+					participant.setName(attribute.getValue());
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_EMAIL))
+					participant.setEmail(attribute.getValue());
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_COLLABORATION_ID))
+					participant.setCollaborationId(attribute.getValue());
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_IS_REG))
+					participant.setIsReg(attribute.getValue());
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_ROLE))
+					participant.setRole(attribute.getValue());
+				if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_GROUP))
+					participant.setGroup(attribute.getValue());
+			}
+		}
+
+		logger.debug(LOGPRE + "getParticipantByName() end" + LOGPRE);
 		return participant;
 	}
 

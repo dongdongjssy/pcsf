@@ -26,11 +26,12 @@
 		session.setAttribute("viewedCollaborationInstanceId", collaborationId);
 		List<?> participants = (List<?>) session.getAttribute(PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS);
 		Collaboration viewedCollaboration = dbAccess.getCollaborationById(collaborationId);
-		if (viewedCollaboration.getParticipants().size() == 0) {
+		if (viewedCollaboration.getParticipants() == null) {
 	%>
 	<p>Add participants for this instance:</p>
 	<table class="one">
 		<tr class="one">
+			<td class="one"><jsp:include page="addParticipant.jsp" /></td>
 			<td class="one">
 				<%
 					if (!participants.isEmpty()) {
@@ -41,17 +42,8 @@
 										+ "';\" style=\"background:transparent; border-style:none\"/>" + "<br/>");
 							}
 						}
-				%>
-				<hr /> <input type="button" name="addParticipantBtn"
-				value="+ Add Participant"
-				onclick="window.location.href='addParticipant.jsp';" />
-			</td>
-		</tr>
-
-		<tr class="one">
-			<td class="one">
-				<%
-					out.print("<input type=\"button\" value=\"Confirm\" onclick=\"window.location.href='"
+						out.print("<hr/>");
+						out.print("<input type=\"button\" value=\"Confirm\" onclick=\"window.location.href='"
 								+ request.getContextPath() + "/AddParticipantConfirm?collaborationId="
 								+ viewedCollaboration.getId() + "';\"/><br/>");
 				%>
@@ -88,27 +80,19 @@
 	%>
 
 	<p>All participants have done registration, you can run the
-		collaboration process:</p>
+		collaboration instance:</p>
 	<table class="one">
 		<tr>
-			<th class="one">Process Definition Id</th>
-			<th class="one">Process Definition Name</th>
-			<th class="one">Process Definition Version</th>
+			<th class="one">Instance Id</th>
+			<th class="one">Instance Name</th>
 			<th class="one">State</th>
 			<th class="one">Operation</th>
 		</tr>
-		<%
-			String getPd = "getProcessDefintions";
-					Object[] pdResults = pcsfUtils.callService(wsUrl, getPd, collaborationId);
-					List<?> resultList = (ArrayList<?>) pdResults[0];
-					for (Object o : resultList) {
-						out.print("<tr class=\"one\">");
-						String s = (String) o;
-						String[] infos = s.split(",");
-						for (String info : infos) {
-							out.print("<td class=\"one\">" + info + "</td>");
-						}
-						out.print("<td class=\"one\">" + viewedCollaboration.getCurrentState() + "</td>");
+		<tr>
+			<td class="one"><%=viewedCollaboration.getId()%></td>
+			<td class="one"><%=viewedCollaboration.getName()%></td>
+			<%
+				out.print("<td class=\"one\">" + viewedCollaboration.getCurrentState() + "</td>");
 						if (!viewedCollaboration.getCurrentState().equals(
 								PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\"onclick=\"window.location.href='"
@@ -120,14 +104,11 @@
 									+ "';\"/><input type=\"button\" value=\"Stop\" disabled/></td>");
 						} else {
 							out.print("<td class=\"one\"><input type=\"button\" value=\"Run\" disabled/><input type=\"button\" value=\"Stop\"onclick=\"window.location.href='"
-									+ request.getContextPath()
-									+ "/Stop?collaborationId="
-									+ collaborationId
-									+ "';\"/></td>");
+									+ request.getContextPath() + "/Stop?collaborationId=" + collaborationId + "';\"/></td>");
 						}
 						out.print("</tr>");
-					}
-		%>
+			%>
+		
 	</table>
 
 	<p>Current Active Activities:</p>

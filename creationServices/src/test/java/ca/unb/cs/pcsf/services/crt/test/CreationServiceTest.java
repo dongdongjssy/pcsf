@@ -115,7 +115,7 @@ public class CreationServiceTest {
 	 */
 	public static void main(String[] args) {
 		PcsfSimpleDBAccessImpl pcsfSimpleDBAccessImpl = new PcsfSimpleDBAccessImpl();
-		Collaboration collaboration = pcsfSimpleDBAccessImpl.getCollaborationById("pcsf-377963");
+		Collaboration collaboration = pcsfSimpleDBAccessImpl.getCollaborationById("pcsf-329516");
 		System.out.println(collaboration.getParticipants().size());
 	}
 

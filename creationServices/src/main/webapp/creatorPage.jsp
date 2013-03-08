@@ -61,19 +61,23 @@
 					out.print("<tr class=\"one\">");
 					out.print("<td class=\"one\">" + collaboration.getId() + "</td>");
 					out.print("<td class=\"one\">" + collaboration.getName() + "</td>");
-					out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
-							+ request.getContextPath()
-							+ "/Delete?collaborationId="
-							+ collaboration.getId()
-							+ "';\"/><input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
-							+ request.getContextPath()
-							+ "/Deploy?collaborationId="
-							+ collaboration.getId()
-							+ "';\"/></td>");
 
 					if (collaboration.getCurrentState().equals("0")) {
+						out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
+								+ request.getContextPath()
+								+ "/Delete?collaborationId="
+								+ collaboration.getId()
+								+ "';\"/><input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
+								+ request.getContextPath()
+								+ "/Deploy?collaborationId="
+								+ collaboration.getId()
+								+ "';\"/></td>");
 						out.print("<td class=\"one\">No instance for this collaboration</td>");
 					} else {
+						out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" disabled/>"
+								+ "<input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
+								+ request.getContextPath() + "/Deploy?collaborationId=" + collaboration.getId()
+								+ "';\"/></td>");
 						out.print("<td class=\"one\">" + collaboration.getCurrentState()
 								+ " instance(s) deployed:<br/>");
 						for (int k = 1; k <= Integer.parseInt(collaboration.getCurrentState()); k++) {

@@ -47,14 +47,20 @@ public class AddParticipantConfirmServlet extends HttpServlet {
 		HttpSession session = request.getSession(true);
 		String collaborationId = request.getParameter("collaborationId");
 		PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
-
-		List<String> participantList = new LinkedList<String>();
+		String participantList = "";
 
 		@SuppressWarnings("unchecked")
 		List<Participant> participants = (List<Participant>) session.getAttribute(ATTRIBUTE_ADDED_PARTICIPANTS);
-		for (Participant p : participants) {
-			participantList.add(p.getId());
+		for (int i = 0; i < participants.size(); i++) {
+			Participant p = participants.get(i);
 			dbAccess.putDataIntoDomain(p);
+
+			if (i == participants.size() - 1)
+				participantList += dbAccess.getParticipantByNameAndCollaborationId(p.getName(), p.getCollaborationId())
+						.getId();
+			else
+				participantList += dbAccess.getParticipantByNameAndCollaborationId(p.getName(), p.getCollaborationId())
+						.getId() + ":";
 		}
 
 		dbAccess.updateInstanceParticipantList(collaborationId, participantList);

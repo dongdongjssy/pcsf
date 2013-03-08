@@ -28,9 +28,6 @@
 </script>
 </head>
 <body>
-	<jsp:include page="common.jsp" />
-	<h2>Add a new participant</h2>
-
 	<form name="addParticipantForm" method="post" action="AddParticipant">
 		<table>
 			<tr>
@@ -51,10 +48,9 @@
 			</tr>
 
 			<tr>
-				<td><input type="submit" name="okBtn" value="OK"
+				<td><input type="submit" name="okBtn" value="+ Add Participant"
 					onclick="javascript:return CheckForm(addParticipantForm);" /></td>
-				<td><input type="button" name="cancelBtn" value="Cancel"
-					onclick="javascript:history.back(-1);" /></td>
+				<td><input type="reset" name="resetBtn" value="Reset" /></td>
 			</tr>
 		</table>
 	</form>
