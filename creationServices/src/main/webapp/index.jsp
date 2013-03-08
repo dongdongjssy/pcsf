@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>Peer Collaboration Service Framework</title>
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
 <script type="text/javascript">
 	function CheckCreatorLoginForm(objForm) {

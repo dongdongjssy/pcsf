@@ -7,7 +7,6 @@ package ca.unb.cs.pcsf.web.servlet.collaboration;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -54,6 +53,12 @@ public class AddParticipantConfirmServlet extends HttpServlet {
 		for (int i = 0; i < participants.size(); i++) {
 			Participant p = participants.get(i);
 			dbAccess.putDataIntoDomain(p);
+
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			if (i == participants.size() - 1)
 				participantList += dbAccess.getParticipantByNameAndCollaborationId(p.getName(), p.getCollaborationId())

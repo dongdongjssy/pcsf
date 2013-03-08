@@ -46,7 +46,6 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.ReplaceableItem;
 import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.sun.corba.se.spi.orb.StringPair;
 
 /**
  * @author dongdong
@@ -782,6 +781,6 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		}
 
 		logger.debug(LOGPRE + "idGenerator() end" + LOGPRE);
-		return "pcsf-" + id;
+		return id;
 	}
 }

@@ -34,8 +34,8 @@ public class CreationServiceConstants {
 	public static final String MAIL_SUBJECT = "Collaboration Notification From PCSF";
 	public static final String MAIL_COMMON_CONTENT_FOR_PARTICIPANT = "You are asked to participant a collaboration!\nPlease click the following link to register into the collaboration using your given id:\n\n";
 	public static final String MAIL_COMMON_CONTENT_FOR_CREATOR = "You have deployed a collaboration, an email has been sent to each participant and you can run the collaboration after all participant done registration.\n\nClick the following link to check the collaboration:\n\n";
-	public static final String LINK_CREATOR = "http://ec2-54-242-33-5.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=creatorLogin";
-	public static final String LINK_PARTICIPANT = "http://ec2-54-242-33-5.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=participantLogin";
+	public static final String LINK_CREATOR = "http://ec2-50-16-63-235.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=creatorLogin";
+	public static final String LINK_PARTICIPANT = "http://ec2-50-16-63-235.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=participantLogin";
 
 	// domain names
 	public static final String DOMAIN_CREATOR = "Creator";

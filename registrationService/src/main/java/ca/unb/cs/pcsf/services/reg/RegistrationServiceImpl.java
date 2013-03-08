@@ -50,7 +50,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	// mail
 	private static final String MAIL_FROM = "pcsf.notification@gmail.com";
 	private static final String MAIL_SUBJECT = "Collaboration Notification From PCSF";
-	private static final String LINK_CREATOR = "http://ec2-54-242-33-5.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=creatorLogin";
+	private static final String LINK_CREATOR = "http://ec2-50-16-63-235.compute-1.amazonaws.com/:8080/pcsf/index.jsp?action=creatorLogin";
 	private static final String MAIL_COMMON_CONTENT_FOR_CREATOR = "All participants have registered into the collaboration!\nPlease click the following link to run it:\n\n";
 
 	// simple db
@@ -81,7 +81,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public RegistrationServiceImpl() {
 		// get credentials
 		try {
-			credentials = new PropertiesCredentials(RegistrationServiceImpl.class.getResourceAsStream(CREDENTIAL_FILE_PATH));
+			credentials = new PropertiesCredentials(
+					RegistrationServiceImpl.class.getResourceAsStream(CREDENTIAL_FILE_PATH));
 			sdb = new AmazonSimpleDBClient(credentials);
 			ses = new AmazonSimpleEmailServiceClient(credentials);
 		} catch (IOException e) {
@@ -138,7 +139,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 		if (isReg.equals(PARTICIPANT_IS_REG_NO)) {
 			logger.info("registering participant <" + participantName + ">");
 			List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
-			replaceableAttributes.add(new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_IS_REG, PARTICIPANT_IS_REG_YES, true));
+			replaceableAttributes.add(new ReplaceableAttribute(PARTICIPANT_ATTRIBUTE_IS_REG, PARTICIPANT_IS_REG_YES,
+					true));
 
 			sdb.putAttributes(new PutAttributesRequest(DOMAIN_PARTICIPANT, participantId, replaceableAttributes));
 			try {
@@ -150,7 +152,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 			// get collaboration
 			String collaborationName = null;
-			List<String> participantNames = new ArrayList<String>();
+			String participantNames = "";
 			String creatorId = null;
 
 			String getCollaborationRequest = "select * from `" + DOMAIN_COLLABORATION + "`";
@@ -176,20 +178,28 @@ public class RegistrationServiceImpl implements RegistrationService {
 							creatorId = attribute.getValue();
 					}
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-						participantNames.add(attribute.getValue());
+						participantNames = attribute.getValue();
 				}
 			}
 
 			// check if all participants have done registration.
 			boolean isAllReg = true;
-			for (String participant : participantNames) {
-				String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME + " = '"
-						+ participant + "' AND " + PARTICIPANT_ATTRIBUTE_COLLABORATION_ID + "='" + collaborationId + "'";
+			String[] participants = participantNames.split(":");
+			for (String participant : participants) {
+				String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "`";
 				items = sdb.select(new SelectRequest(selectRequest)).getItems();
 
-				if (items != null) {
-					Item item = items.get(0);
-					for (Attribute attribute : item.getAttributes()) {
+				if (!items.isEmpty()) {
+					for (Item item : items) {
+						if (item.getName().equals(participant)) {
+							findItem = item;
+							break;
+						}
+					}
+				}
+
+				if (findItem != null) {
+					for (Attribute attribute : findItem.getAttributes()) {
 						if (attribute.getName().equals(PARTICIPANT_ATTRIBUTE_IS_REG)) {
 							if (!attribute.getValue().equals(PARTICIPANT_IS_REG_YES)) {
 								isAllReg = false;
@@ -233,7 +243,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 				// deploy a process.
 				logger.info("preparing to start the process...");
-				String url = WSURL_PRE + collaborationName + "-scheduleNCoordinateService/ScheduleNCoordinateService?wsdl";
+				String url = WSURL_PRE + collaborationName
+						+ "-scheduleNCoordinateService/ScheduleNCoordinateService?wsdl";
 				String method = "deployProcess";
 				callService(url, method, collaborationId);
 
@@ -308,19 +319,21 @@ public class RegistrationServiceImpl implements RegistrationService {
 			t.close();
 		} catch (AddressException e) {
 			e.printStackTrace();
-			logger.info("Caught an AddressException, which means one or more of your " + "addresses are improperly formatted.");
+			logger.info("Caught an AddressException, which means one or more of your "
+					+ "addresses are improperly formatted.");
 		} catch (MessagingException e) {
 			e.printStackTrace();
 			logger.info("Caught a MessagingException, which means that there was a "
-					+ "problem sending your message to Amazon's E-mail Service check the " + "stack trace for more information.");
+					+ "problem sending your message to Amazon's E-mail Service check the "
+					+ "stack trace for more information.");
 		}
 
 		logger.debug(LOGPRE + " sendNotificationMail() end " + LOGPRE);
 	}
 
 	/**
-	 * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a verification email,
-	 * which will contain a link that you can click on to complete the verification process.
+	 * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a
+	 * verification email, which will contain a link that you can click on to complete the verification process.
 	 * 
 	 * @param ses
 	 *            The Amazon Simple Email Service client to use when making requests to Amazon SES.

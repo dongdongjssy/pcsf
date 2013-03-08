@@ -91,7 +91,7 @@ public class RegistrationServiceTest {
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CREATOR_ID, "489823", true), new ReplaceableAttribute(
 						COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_NEW_CREATED, true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_WORKFLOW_MODEL, "test", true),
-				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "dongdong", true),
+				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "12345", true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "teamleader", true),
 				new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PARTICIPANT, "manager", true));
 		items.add(c1);
@@ -102,7 +102,7 @@ public class RegistrationServiceTest {
 
 	@Test
 	public void testSetAsReg() {
-		String wsUrl = "http://localhost:8080/registrationService/RegistrationService?wsdl";
+		String wsUrl = "http://ec2-50-16-63-235.compute-1.amazonaws.com:8080/registrationService/RegistrationService?wsdl";
 		String method = "setAsReg";
 		String arg = "12345";
 
@@ -138,5 +138,4 @@ public class RegistrationServiceTest {
 
 		Assert.assertEquals("yes", isReg);
 	}
-
 }

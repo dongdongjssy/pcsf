@@ -339,7 +339,7 @@ public class CreationServiceImpl implements CreationService {
 		// delete collaboration from db
 		if (isCollaborationExist(collaborationName)) {
 			logger.info("Deleting participants...");
-			List<String> participantNames = new ArrayList<String>();
+			String[] participantNames = null;
 
 			String selectRequest = "select * from `" + DOMAIN_COLLABORATION + "`";
 			findItem = findItem(collaborationId, selectRequest);
@@ -347,13 +347,13 @@ public class CreationServiceImpl implements CreationService {
 			if (findItem != null) {
 				for (Attribute attribute : findItem.getAttributes()) {
 					if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
-						participantNames.add(attribute.getValue());
+						participantNames = attribute.getValue().split(":");
 				}
 			}
 
 			for (String p : participantNames) {
-				logger.info(" - deleting participant <" + p + ">...");
-				if (p != null && !p.equals("")) {
+				if (p != null && !p.equals("NO DATA")) {
+					logger.info(" - deleting participant <" + p + ">...");
 					sdb.deleteAttributes(new DeleteAttributesRequest(DOMAIN_PARTICIPANT, p));
 				}
 			}
@@ -405,11 +405,10 @@ public class CreationServiceImpl implements CreationService {
 		sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
 
 		String serviceLocation = "";
-		String pcsfEnv = "/home/ec2-user/dev/apache-tomcat-7.0.37/webapps/";
-		if (pcsfEnv.endsWith(File.separator)) {
-			serviceLocation = pcsfEnv + SERVICES_SOURCE_LOCATION;
+		if (SERVICES_DEPLOY_LOCATION.endsWith(File.separator)) {
+			serviceLocation = SERVICES_DEPLOY_LOCATION + SERVICES_SOURCE_LOCATION;
 		} else {
-			serviceLocation = pcsfEnv + File.separator + SERVICES_SOURCE_LOCATION;
+			serviceLocation = SERVICES_DEPLOY_LOCATION + File.separator + SERVICES_SOURCE_LOCATION;
 		}
 		// get all files and folders in source folder
 		File[] files = (new File(serviceLocation)).listFiles();
@@ -663,7 +662,7 @@ public class CreationServiceImpl implements CreationService {
 		}
 
 		logger.debug(LOGPRE + "idGenerator() end" + LOGPRE);
-		return "pcsf-" + id;
+		return id;
 	}
 
 	/**
