@@ -98,7 +98,7 @@
 			out.print("</table");
 		} else {
 			out.print("<p>");
-			out.print("<i>" + session.getAttribute(PCSFWebConstants.ATTRIBUTE_CREATOR_DISPLAY_MSG) + "</i>");
+			out.print("<i>You have not created or deployed any collaboration yet!</i>");
 			out.print("</p>");
 		}
 	%>
