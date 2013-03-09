@@ -42,61 +42,66 @@
 	<b><%=session.getAttribute(PCSFWebConstants.ATTRIBUTE_CREATOR_NAME)%></b>
 	<input type="button" name="logoutBtn" value="Logout"
 		onclick="window.location.href='index.jsp';" />
-	<p><%=session.getAttribute(PCSFWebConstants.ATTRIBUTE_CREATOR_DISPLAY_MSG)%></p>
-	<table class="one">
-		<%
-			if (collaborations != null && collaborations.size() != 0) {
-		%>
-		<tr class="one">
-			<th class="one">ID</th>
-			<th class="one">Name</th>
-			<th class="one">Command</th>
-			<th class="one">Instances List</th>
-		</tr>
-		<%
+
+	<%
+		if (collaborations != null && collaborations.size() != 0) {
+			out.print("<p>");
+			out.print(session.getAttribute(PCSFWebConstants.ATTRIBUTE_CREATOR_DISPLAY_MSG));
+			out.print("</p>");
+			out.print("<table class=\"one\">");
+			out.print("<tr class=\"one\">");
+			out.print("<th class=\"one\">ID</th>");
+			out.print("<th class=\"one\">Name</th>");
+			out.print("<th class=\"one\">Command</th>");
+			out.print("<th class=\"one\">Instances List</th>");
+			out.print("</tr>");
 			PcsfSimpleDBAccessImpl dbAccess = new PcsfSimpleDBAccessImpl();
-				for (int i = 0; i < collaborations.size(); i++) {
-					Collaboration collaboration = (Collaboration) collaborations.get(i);
+			for (int i = 0; i < collaborations.size(); i++) {
+				Collaboration collaboration = (Collaboration) collaborations.get(i);
 
-					out.print("<tr class=\"one\">");
-					out.print("<td class=\"one\">" + collaboration.getId() + "</td>");
-					out.print("<td class=\"one\">" + collaboration.getName() + "</td>");
+				out.print("<tr class=\"one\">");
+				out.print("<td class=\"one\">" + collaboration.getId() + "</td>");
+				out.print("<td class=\"one\">" + collaboration.getName() + "</td>");
 
-					if (collaboration.getCurrentState().equals("0")) {
-						out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
-								+ request.getContextPath()
-								+ "/Delete?collaborationId="
-								+ collaboration.getId()
-								+ "';\"/><input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
-								+ request.getContextPath()
-								+ "/Deploy?collaborationId="
-								+ collaboration.getId()
-								+ "';\"/></td>");
-						out.print("<td class=\"one\">No instance for this collaboration</td>");
-					} else {
-						out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" disabled/>"
-								+ "<input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
-								+ request.getContextPath() + "/Deploy?collaborationId=" + collaboration.getId()
-								+ "';\"/></td>");
-						out.print("<td class=\"one\">" + collaboration.getCurrentState()
-								+ " instance(s) deployed:<br/>");
-						for (int k = 1; k <= Integer.parseInt(collaboration.getCurrentState()); k++) {
-							out.print(collaboration.getName() + "-" + k
-									+ "<input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
-									+ request.getContextPath() + "/DeleteInstance?collaborationId="
-									+ collaboration.getId() + "-" + k + "';\"/>");
-							out.print("<input type=\"button\" value=\"View\" onclick=\"window.location.href='"
-									+ request.getContextPath() + "/View?collaborationId=" + collaboration.getId() + "-"
-									+ k + "';\"/><br/>");
-						}
-						out.print("</td>");
+				if (collaboration.getCurrentState().equals("0")) {
+					out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
+							+ request.getContextPath()
+							+ "/Delete?collaborationId="
+							+ collaboration.getId()
+							+ "';\"/><input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
+							+ request.getContextPath()
+							+ "/Deploy?collaborationId="
+							+ collaboration.getId()
+							+ "';\"/></td>");
+					out.print("<td class=\"one\">No instance for this collaboration</td>");
+				} else {
+					out.print("<td class=\"one\"><input type=\"button\" value=\"Delete\" disabled/>"
+							+ "<input type=\"button\" value=\"Deploy Instance\"onclick=\"window.location.href='"
+							+ request.getContextPath() + "/Deploy?collaborationId=" + collaboration.getId()
+							+ "';\"/></td>");
+					out.print("<td class=\"one\">" + collaboration.getCurrentState()
+							+ " instance(s) deployed:<br/>");
+					for (int k = 1; k <= Integer.parseInt(collaboration.getCurrentState()); k++) {
+						out.print(collaboration.getName() + "-" + k
+								+ "<input type=\"button\" value=\"Delete\" onclick=\"window.location.href='"
+								+ request.getContextPath() + "/DeleteInstance?collaborationId="
+								+ collaboration.getId() + "-" + k + "';\"/>");
+						out.print("<input type=\"button\" value=\"View\" onclick=\"window.location.href='"
+								+ request.getContextPath() + "/View?collaborationId=" + collaboration.getId() + "-"
+								+ k + "';\"/><br/>");
 					}
-
+					out.print("</td>");
 				}
-				out.println("</tr>");
+
 			}
-		%>
-	</table>
+			out.println("</tr>");
+			out.print("</table");
+		} else {
+			out.print("<p>");
+			out.print("<i>" + session.getAttribute(PCSFWebConstants.ATTRIBUTE_CREATOR_DISPLAY_MSG) + "</i>");
+			out.print("</p>");
+		}
+	%>
 	<br />
 	<hr>
 	<p>Create a new collaboration:</p>

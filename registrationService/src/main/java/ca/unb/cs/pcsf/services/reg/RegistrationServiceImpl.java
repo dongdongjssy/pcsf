@@ -26,9 +26,11 @@ import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.Attribute;
+import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
 import com.amazonaws.services.simpledb.model.Item;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.ReplaceableItem;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpleemail.AWSJavaMailTransport;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -71,6 +73,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 	private static final String PARTICIPANT_IS_REG_YES = "yes";
 	private static final String PARTICIPANT_IS_REG_NO = "no";
+
+	public static final String COLLABORATION_ATTRIBUTE_CURRENT_STATE = "CurrentState";
+	public static final String COLLABORATION_STATE_DEPLOYED = "deployed";
 
 	private Logger logger = Logger.getLogger(RegistrationServiceImpl.class.getName());
 
@@ -247,6 +252,15 @@ public class RegistrationServiceImpl implements RegistrationService {
 						+ "-scheduleNCoordinateService/ScheduleNCoordinateService?wsdl";
 				String method = "deployProcess";
 				callService(url, method, collaborationId);
+
+				// set collaboration instance state to be deployed
+				// change collaboration state to be running
+				List<ReplaceableItem> changeStateitems = new ArrayList<ReplaceableItem>();
+				ReplaceableItem changeStateItem = new ReplaceableItem(collaborationId);
+				changeStateItem.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE,
+						COLLABORATION_STATE_DEPLOYED, true));
+				changeStateitems.add(changeStateItem);
+				sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, changeStateitems));
 
 				logger.info("sending an email to notify creator...");
 				sendNotificationMail(creatorEmail, creatorName);

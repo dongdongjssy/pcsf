@@ -21,7 +21,8 @@
 <body>
 	<jsp:include page="common.jsp" />
 	<%
-		Collaboration collaboration = (Collaboration) session.getAttribute(PCSFWebConstants.ATTRIBUTE_COLLABORATION_BEAN);
+		Collaboration collaboration = (Collaboration) session
+				.getAttribute(PCSFWebConstants.ATTRIBUTE_COLLABORATION_BEAN);
 		Participant participant = (Participant) session.getAttribute(PCSFWebConstants.ATTRIBUTE_PARTICIPANT_BEAN);
 		String username = participant.getName();
 		String userId = participant.getId();
@@ -35,7 +36,7 @@
 	<b><%=userId%></b>
 	<input type="button" name="logoutBtn" value="Logout"
 		onclick="window.location.href='index.jsp';" />
-	<p>Your state in this collaboration:</p>
+	<p>Collaboration Details:</p>
 	<table class="one">
 		<%
 			if (collaboration != null) {
@@ -53,7 +54,9 @@
 				out.print("<td class=\"one\">" + collaboration.getCurrentState() + "</td>");
 				if (participant.getIsReg().equals(PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_NO)) {
 					out.print("<td class=\"one\">No <input type=\"button\" value=\"register\" onclick=\"window.location.href='"
-							+ request.getContextPath() + "/RegisterParticipant?participantId=" + participant.getId()
+							+ request.getContextPath()
+							+ "/RegisterParticipant?participantId="
+							+ participant.getId()
 							+ "&&collaborationName=" + collaboration.getName() + "';\"/></td>");
 				} else {
 					out.print("<td class=\"one\">Yes</td>");
@@ -64,43 +67,48 @@
 	</table>
 	<p />
 	<p>Your Task:</p>
-	<table class="one">
-		<%
-			if (collaboration != null
-					&& collaboration.getCurrentState().equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
-		%>
-		<tr class="one">
-			<th class="one">Task Id</th>
-			<th class="one">Task Name</th>
-			<th class="one">Created Time</th>
-			<th class="one">Command</th>
-		</tr>
-		<%
+	<%
+		if (collaboration != null
+				&& collaboration.getCurrentState().equals(PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)) {
+			out.print("<table class=\"one\">");
+			out.print("<tr class=\"one\">");
+			out.print("<th class=\"one\">Task Id</th>");
+			out.print("<th class=\"one\">Task Name</th>");
+			out.print("<th class=\"one\">Created Time</th>");
+			out.print("<th class=\"one\">Command</th>");
+			out.print("</tr>");
+
 			PcsfUtils pcsfUtils = new PcsfUtils();
-				String wsUrl = pcsfUtils.getSncWSUrl(collaboration.getName());
-				String getTsk = "getTask";
-				Object[] tskResults = pcsfUtils.callService(wsUrl, getTsk, userRole, collaboration.getId());
-				List<?> tskResultList = (ArrayList<?>) tskResults[0];
-				for (Object o : tskResultList) {
-					out.print("<tr class=\"one\">");
-					String s = (String) o;
-					String[] infos = s.split(",");
-					for (String info : infos) {
-						out.print("<td class=\"one\">" + info + "</td>");
-					}
-					out.print("<td class=\"one\">Chosse files to upload if have any: ");
-					out.print("<input type=\"button\" value=\"upload\" onclick=\"window.location.href='uploadFile.jsp?collaborationName="
-							+ collaboration.getName() + "';\" /></br>");
-					out.print("Chosse files to download if have any: ");
-					out.print("<input type=\"button\" value=\"download\" onclick=\"window.location.href='downloadFile.jsp?collaborationName="
-							+ collaboration.getName() + "';\" /></br><hr/>");
-					out.print("<input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
-							+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationName="
-							+ collaboration.getName() + "&&collaborationId=" + collaboration.getId() + "';\"/></td>");
-					out.print("</tr>");
+			String wsUrl = pcsfUtils.getSncWSUrl(collaboration.getName());
+			String getTsk = "getTask";
+			Object[] tskResults = pcsfUtils.callService(wsUrl, getTsk, userRole, collaboration.getId());
+			List<?> tskResultList = (ArrayList<?>) tskResults[0];
+			for (Object o : tskResultList) {
+				out.print("<tr class=\"one\">");
+				String s = (String) o;
+				String[] infos = s.split(",");
+				for (String info : infos) {
+					out.print("<td class=\"one\">" + info + "</td>");
 				}
+				out.print("<td class=\"one\">Chosse files to upload if have any: ");
+				out.print("	<jsp:include page=\"uploadFile.jsp\" />");
+				//out.print("<input type=\"button\" value=\"upload\" onclick=\"window.location.href='uploadFile.jsp?collaborationName="
+				//	+ collaboration.getName() + "';\" /></br>");
+				out.print("<br>");
+				out.print("Chosse files to download if have any: ");
+				out.print("	<jsp:include page=\"download.jsp\" />");
+				//out.print("<input type=\"button\" value=\"download\" onclick=\"window.location.href='downloadFile.jsp?collaborationName="
+				//	+ collaboration.getName() + "';\" /></br><hr/>");
+				out.print("<input type=\"button\" value=\"submit task\" onclick=\"window.location.href='"
+						+ request.getContextPath() + "/SubmitTask?taskId=" + infos[0] + "&&collaborationName="
+						+ collaboration.getName() + "&&collaborationId=" + collaboration.getId() + "';\"/></td>");
+				out.print("</tr>");
 			}
-		%>
-	</table>
+			out.print("</table>");
+		} else {
+			out.print("<i>NO TASK</i><br><i>The collaboration has not running yet, waiting until all participants done the registration!</i>");
+		}
+	%>
+
 </body>
 </html>
