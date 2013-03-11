@@ -4,7 +4,7 @@
  */
 package ca.unb.cs.pcsf.web.servlet.collaboration;
 
-import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING;
+import static ca.unb.cs.pcsf.web.PcsfSimpleDBAccessConstants.*;
 
 import java.io.IOException;
 
@@ -45,14 +45,18 @@ public class RunServlet extends HttpServlet {
 		String processDeploymentId = request.getParameter("processDeploymentId");
 		Collaboration collaboration = dbAccess.getCollaborationById(collaborationId);
 
-		String collaborationName = collaboration.getName();
-		logger.info("Ready to run collaboration <" + collaborationName + ">...");
+		if (collaboration.getCurrentState().equals(COLLABORATION_STATE_STOP)) {
+			dbAccess.updateCollaborationState(collaboration, COLLABORATION_STATE_RUNNING);
+		} else {
+			String collaborationName = collaboration.getName();
+			logger.info("Ready to run collaboration <" + collaborationName + ">...");
 
-		String url = pcsfUtils.getSncWSUrl(collaborationName);
-		String method = "runCollaboration";
+			String url = pcsfUtils.getSncWSUrl(collaborationName);
+			String method = "runCollaboration";
 
-		pcsfUtils.callService(url, method, collaborationId, processDeploymentId);
-		dbAccess.updateCollaborationState(collaboration, COLLABORATION_STATE_RUNNING);
+			pcsfUtils.callService(url, method, collaborationId, processDeploymentId);
+			dbAccess.updateCollaborationState(collaboration, COLLABORATION_STATE_RUNNING);
+		}
 
 		pcsfUtils.waitAndGo();
 		response.sendRedirect(request.getContextPath() + "/view.jsp?collaborationId=" + collaborationId);

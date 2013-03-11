@@ -57,17 +57,48 @@
 	<p>Participants State:</p>
 	<table class="one">
 		<tr class="one">
-			<th class="one">Participant Name</th>
+			<th class="one">Name</th>
+			<th class="one">Role</th>
 			<th class="one">Has Registered?</th>
+			<th class="one">Status</th>
 		</tr>
 		<%
 			List<Participant> participantsList = viewedCollaboration.getParticipants();
+				PcsfUtils pcsfUtils = new PcsfUtils();
+				String wsUrl = pcsfUtils.getSncWSUrl(viewedCollaboration.getName());
+
 				for (Participant p : participantsList) {
 					out.print("<tr class=\"one\"><td class=\"one\">" + p.getName() + "</td>");
+					out.print("<tr class=\"one\"><td class=\"one\">" + p.getRole() + "</td>");
 					if (p.getIsReg().equals(PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_YES)) {
-						out.print("<td class=\"one\">Yes</td></tr>");
+						out.print("<td class=\"one\">Yes</td>");
 					} else {
-						out.print("<td class=\"one\">No</td></tr>");
+						out.print("<td class=\"one\">No</td>");
+					}
+
+					if (viewedCollaboration.getCurrentState().equals(
+							PcsfSimpleDBAccessConstants.COLLABORATION_STATE_RUNNING)
+							|| viewedCollaboration.getCurrentState().equals(
+									PcsfSimpleDBAccessConstants.COLLABORATION_STATE_STOP)) {
+						String getTsk = "getCurrentTask";
+						Object[] tskResults = pcsfUtils.callService(wsUrl, getTsk, collaborationId);
+						List<?> tskResultList = (ArrayList<?>) tskResults[0];
+						int k = 0;
+						for (Object o : tskResultList) {
+							k++;
+							String s = (String) o;
+							String[] infos = s.split(",");
+							if (infos[2].equals(p.getRole())) {
+								out.print("<td class=\"one\"><b>Active</b></td></tr>");
+								break;
+							}
+
+							if (k == tskResultList.size())
+								out.print("<td class=\"one\"><i>NO TASK</i></td></tr>");
+						}
+
+					} else {
+						out.print("<td class=\"one\">Inactive</td></tr>");
 					}
 				}
 		%>
@@ -75,8 +106,6 @@
 
 	<%
 		if (viewedCollaboration.isAllReg()) {
-				PcsfUtils pcsfUtils = new PcsfUtils();
-				String wsUrl = pcsfUtils.getSncWSUrl(viewedCollaboration.getName());
 	%>
 
 	<p>All participants have done registration, you can run the
