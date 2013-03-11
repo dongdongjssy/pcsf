@@ -15,11 +15,11 @@ import javax.jws.WebService;
  */
 @WebService
 public interface RegistrationService {
-	/**
-	 * Register the participant into the collaboration.
-	 * 
-	 * @param participantId
-	 */
-	@WebMethod
-	public void setAsReg(String participantId);
+  /**
+   * Register the participant into the collaboration.
+   * 
+   * @param participantId
+   */
+  @WebMethod
+  public void setAsReg(String participantId);
 }
