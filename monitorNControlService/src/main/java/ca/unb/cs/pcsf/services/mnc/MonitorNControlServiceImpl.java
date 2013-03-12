@@ -5,6 +5,8 @@
 package ca.unb.cs.pcsf.services.mnc;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +27,9 @@ import org.apache.log4j.Logger;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
+import com.amazonaws.services.simpledb.model.Attribute;
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpleemail.AWSJavaMailTransport;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
@@ -43,18 +48,32 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
 
   private static final String LOGPRE = ">>>>";
   private static final String CREDENTIAL_FILE_PATH = "AwsCredentials.properties";
+  private static final String DOMAIN_PARTICIPANT = "Participant";
+  private static final String DOMAIN_COLLABORATION = "Collaboration";
+  private static final String COLLABORATION_ATTRIBUTE_NAME = "Name";
+  private static final String COLLABORATION_ATTRIBUTE_PARTICIPANT = "Participant";
+  private static final String PARTICIPANT_ATTRIBUTE_IS_REG = "IsReg";
+  private static final String PARTICIPANT_ATTRIBUTE_NAME = "Name";
+  private static final String PARTICIPANT_ATTRIBUTE_EMAIL = "Email";
+  private static final String PARTICIPANT_ATTRIBUTE_ROLE = "Role";
+  private static final String PARTICIPANT_IS_REG_NO = "no";
 
   private static final String WSURL_PRE = "http://localhost:8080/";
   // mail
   private static final String MAIL_FROM = "pcsf.notification@gmail.com";
   private static final String MAIL_SUBJECT = "Collaboration Notification From PCSF";
-  public static final String MAIL_COMMON_CONTENT_FOR_PARTICIPANT = "You are asked to participant a collaboration!\nPlease click the following link to register into the collaboration using your given id:\n\n";
-  public static final String LINK_PARTICIPANT = "http://ec2-54-242-33-5.compute-1.amazonaws.com:8080/pcsf/index.jsp?action=participantLogin";
+  private static final String MAIL_CONTENT_REMIND_PARTICIPANT_TO_REG = "You are asked to participant a collaboration!\nThis is a remind email notifying you to do the registration!\nPlease click the following link to register into the collaboration using your given id:\n\n";
+  private static final String MAIL_CONTENT_REMIND_PARTICIPANT_SUBMIT_TASK = "This is a remind email notifying you to submit the task!\nPlease click the following link to view your task using your given id:\n\n";
+  private static final String LINK_PARTICIPANT = "http://ec2-50-16-63-235.compute-1.amazonaws.com/:8080/pcsf/index.jsp?action=participantLogin";
 
   private Timer timer = new Timer();
   private AmazonSimpleDB sdb;
   private AmazonSimpleEmailService ses;
   private PropertiesCredentials credentials;
+
+  private String collaborationName;
+  private String collaborationId;
+  private String participantNames;
 
   /**
    * Constructor
@@ -70,6 +89,7 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
       e.printStackTrace();
     }
 
+    getCollaboration();
     startMonitor();
     logger.info("===========================================");
     logger.info("Monitor and Control Service has started!");
@@ -98,6 +118,31 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
   @Override
   public void endMonitor() {
     timer.cancel();
+  }
+
+  /**
+   * Get collaboration details from the database
+   */
+  private void getCollaboration() {
+    String curPath = this.getClass().getResource("/").getPath();
+    String[] curPaths = curPath.split("/");
+
+    for (String s : curPaths) {
+      if (s.contains("monitorNControlService"))
+        this.collaborationName = s.split("-")[0];
+    }
+
+    String selectExp = "select * from `" + DOMAIN_COLLABORATION + "` where " + COLLABORATION_ATTRIBUTE_NAME + "='"
+        + collaborationName + "'";
+    Item findItem = sdb.select(new SelectRequest(selectExp)).getItems().get(0);
+
+    if (findItem != null) {
+      collaborationId = findItem.getName();
+      for (Attribute attribute : findItem.getAttributes()) {
+        if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PARTICIPANT))
+          participantNames = attribute.getValue();
+      }
+    }
   }
 
   /**
@@ -133,7 +178,7 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
    * @param pEmail
    * @param pName
    */
-  private void sendParticipantNotificationMail(String pEmail, String pName, String pId) {
+  private void sendParticipantNotificationMail(String pEmail, String pName, String pId, String mailContent) {
     logger.debug(LOGPRE + "sendParticipantNotificationMail() start" + LOGPRE);
 
     this.verifyEmailAddress(ses);
@@ -149,8 +194,7 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
       msg.setFrom(new InternetAddress(MAIL_FROM));
       msg.addRecipient(Message.RecipientType.TO, new InternetAddress(pEmail));
       msg.setSubject(MAIL_SUBJECT);
-      msg.setText("Dear " + pName + ",\n\n" + MAIL_COMMON_CONTENT_FOR_PARTICIPANT + "Your id: " + pId + "\n"
-          + LINK_PARTICIPANT);
+      msg.setText("Dear " + pName + ",\n\n" + mailContent + "Your id: " + pId + "\n" + LINK_PARTICIPANT);
       msg.saveChanges();
 
       // Reuse one Transport object for sending all your messages
@@ -211,8 +255,42 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
     @Override
     public void run() {
       // get the registration state of all participants
+      String[] participants = participantNames.split(":");
+      for (String participant : participants) {
+        String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "`";
+        List<Item> items = sdb.select(new SelectRequest(selectRequest)).getItems();
+        Item findItem = new Item();
+        String participantIsReg = "";
+        String participantEmail = "";
+        String participantName = "";
+        String participantId = "";
 
-      // send an email to those who has not done registration
+        if (!items.isEmpty()) {
+          for (Item item : items) {
+            if (item.getName().equals(participant)) {
+              findItem = item;
+              break;
+            }
+          }
+        }
+
+        if (findItem != null) {
+          participantId = findItem.getName();
+          for (Attribute attribute : findItem.getAttributes()) {
+            if (attribute.getValue().equals(PARTICIPANT_ATTRIBUTE_IS_REG))
+              participantIsReg = attribute.getValue();
+            if (attribute.getValue().equals(PARTICIPANT_ATTRIBUTE_EMAIL))
+              participantEmail = attribute.getValue();
+            if (attribute.getValue().equals(PARTICIPANT_ATTRIBUTE_NAME))
+              participantName = attribute.getValue();
+          }
+        }
+
+        // send an email to those who has not done registration
+        if (participantIsReg.equals(PARTICIPANT_IS_REG_NO))
+          sendParticipantNotificationMail(participantEmail, participantName, participantId,
+              MAIL_CONTENT_REMIND_PARTICIPANT_TO_REG);
+      }
     }
   }
 
@@ -227,10 +305,38 @@ public class MonitorNControlServiceImpl implements MonitorNControlService {
      */
     @Override
     public void run() {
-      // get the create time of the current task
+      // get the assignee of the current task
+      logger.info("get current task...");
+      String url = WSURL_PRE + collaborationName + "-scheduleNCoordinateService/ScheduleNCoordinateService?wsdl";
+      String method = "getCurrentTask";
+      Object[] tskResults = callService(url, method, collaborationId);
+      List<?> tskResultList = (ArrayList<?>) tskResults[0];
+      for (Object o : tskResultList) {
+        String s = (String) o;
+        String[] infos = s.split(",");
+        String assignee = infos[2];
 
-      // send an email to the assignee if the task is running over time
+        // send an email to the assignee if the task is running over time
+        String participantEmail = "";
+        String participantName = "";
+        String participantId = "";
+        String selectReq = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_ROLE + " = '"
+            + assignee + "'";
+        List<Item> items = sdb.select(new SelectRequest(selectReq)).getItems();
+        if (items != null) {
+          for (Item findItem : items) {
+            participantId = findItem.getName();
+            for (Attribute attribute : findItem.getAttributes()) {
+              if (attribute.getValue().equals(PARTICIPANT_ATTRIBUTE_EMAIL))
+                participantEmail = attribute.getValue();
+              if (attribute.getValue().equals(PARTICIPANT_ATTRIBUTE_NAME))
+                participantName = attribute.getValue();
+            }
+            sendParticipantNotificationMail(participantEmail, participantName, participantId,
+                MAIL_CONTENT_REMIND_PARTICIPANT_SUBMIT_TASK);
+          }
+        }
+      }
     }
-
   }
 }

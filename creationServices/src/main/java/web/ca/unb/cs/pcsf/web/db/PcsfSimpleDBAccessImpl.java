@@ -720,7 +720,6 @@ public class PcsfSimpleDBAccessImpl implements PcsfSimpleDBAccess {
 		String selectRequest = "select * from `" + DOMAIN_PARTICIPANT + "` where " + PARTICIPANT_ATTRIBUTE_NAME
 				+ " = '" + participantName + "' AND " + PARTICIPANT_ATTRIBUTE_COLLABORATION_ID + " = '"
 				+ collaborationId + "'";
-		System.out.println("!!!!!!!" + selectRequest + "!!!!!!!");
 		List<Item> items = this.getDataFromDomain(selectRequest);
 		if (items != null) {
 			Item findItem = items.get(0);

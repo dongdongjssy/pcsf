@@ -69,7 +69,7 @@
 
 				for (Participant p : participantsList) {
 					out.print("<tr class=\"one\"><td class=\"one\">" + p.getName() + "</td>");
-					out.print("<tr class=\"one\"><td class=\"one\">" + p.getRole() + "</td>");
+					out.print("<td class=\"one\">" + p.getRole() + "</td>");
 					if (p.getIsReg().equals(PcsfSimpleDBAccessConstants.PARTICIPANT_IS_REG_YES)) {
 						out.print("<td class=\"one\">Yes</td>");
 					} else {
