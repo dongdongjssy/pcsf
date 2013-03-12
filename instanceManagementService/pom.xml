@@ -64,14 +64,10 @@
 		<finalName>instanceManagementService</finalName>
 
 		<sourceDirectory>src/main/java</sourceDirectory>
-		<testSourceDirectory>src/test/java</testSourceDirectory>
 
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>src/test/resources</directory>
 			</resource>
 		</resources>
 
