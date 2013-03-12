@@ -15,15 +15,15 @@ import javax.jws.WebService;
  */
 @WebService
 public interface MonitorNControlService {
-	/**
-	 * Start monitor and control service
-	 */
-	@WebMethod
-	public void startMonitor();
+  /**
+   * Start monitor and control service
+   */
+  @WebMethod
+  public void startMonitor();
 
-	/**
-	 * End monitor and control service
-	 */
-	@WebMethod
-	public void endMonitor();
+  /**
+   * End monitor and control service
+   */
+  @WebMethod
+  public void endMonitor();
 }

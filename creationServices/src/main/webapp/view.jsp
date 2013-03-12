@@ -59,7 +59,7 @@
 		<tr class="one">
 			<th class="one">Name</th>
 			<th class="one">Role</th>
-			<th class="one">Has Registered?</th>
+			<th class="one">Registered?</th>
 			<th class="one">Status</th>
 		</tr>
 		<%
