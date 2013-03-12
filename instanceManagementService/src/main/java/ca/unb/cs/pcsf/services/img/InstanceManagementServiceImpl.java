@@ -37,10 +37,10 @@ public class InstanceManagementServiceImpl implements InstanceManagementService 
   private static final String WSURL_PRE = "http://localhost:8080/";
   private static final String DOMAIN_COLLABORATION = "Collaboration";
   private static final String COLLABORATION_ATTRIBUTE_NAME = "Name";
-  public static final String COLLABORATION_ATTRIBUTE_CURRENT_STATE = "CurrentState";
-  public static final String COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID = "ProcessDefId";
-  public static final String COLLABORATION_STATE_RUNNING = "running";
-  public static final String COLLABORATION_STATE_STOP = "stop";
+  private static final String COLLABORATION_ATTRIBUTE_CURRENT_STATE = "CurrentState";
+  private static final String COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID = "ProcessDefId";
+  private static final String COLLABORATION_STATE_RUNNING = "running";
+  private static final String COLLABORATION_STATE_STOP = "stop";
 
   private Logger logger = Logger.getLogger(InstanceManagementServiceImpl.class.getName());
 
@@ -93,6 +93,8 @@ public class InstanceManagementServiceImpl implements InstanceManagementService 
           collaborationName = attribute.getValue();
         if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_CURRENT_STATE))
           collaborationState = attribute.getValue();
+        if (attribute.getName().equals(COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID))
+          processDeploymentId = attribute.getValue();
       }
     }
 

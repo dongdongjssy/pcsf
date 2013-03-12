@@ -38,11 +38,10 @@ import java.util.Properties;
 import java.util.Random;
 
 import javax.jws.WebService;
+import javax.mail.Address;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -64,11 +63,8 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.ReplaceableItem;
 import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.amazonaws.services.simpleemail.AWSJavaMailTransport;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
-import com.amazonaws.services.simpleemail.model.ListVerifiedEmailAddressesResult;
-import com.amazonaws.services.simpleemail.model.VerifyEmailAddressRequest;
 
 /**
  * @author dongdong
@@ -542,6 +538,52 @@ public class CreationServiceImpl implements CreationService {
     logger.debug(LOGPRE + "delDirectory() end" + LOGPRE);
   }
 
+  // /**
+  // * Send a notification to creator notifying new collaboration creation.
+  // *
+  // * @param creatorEmail
+  // * @param creatorName
+  // */
+  // private void sendCreatorNotificationMaild(String creatorEmail, String creatorName) {
+  // logger.debug(LOGPRE + "sendCreatorNotificationMail() start" + LOGPRE);
+  //
+  // this.verifyEmailAddress(ses);
+  // Properties props = new Properties();
+  // props.setProperty("mail.transport.protocol", "aws");
+  // props.setProperty("mail.aws.user", credentials.getAWSAccessKeyId());
+  // props.setProperty("mail.aws.password", credentials.getAWSSecretKey());
+  //
+  // Session session = Session.getInstance(props);
+  // try {
+  // // Create a new Message
+  // Message msg = new MimeMessage(session);
+  // msg.setFrom(new InternetAddress(MAIL_FROM));
+  // msg.addRecipient(Message.RecipientType.TO, new InternetAddress(creatorEmail));
+  // msg.setSubject(MAIL_SUBJECT);
+  // msg.setText("Dear " + creatorName + ",\n\n" + MAIL_COMMON_CONTENT_FOR_CREATOR + LINK_CREATOR);
+  // msg.saveChanges();
+  //
+  // // Reuse one Transport object for sending all your messages
+  // // for better performance
+  // Transport t = new AWSJavaMailTransport(session, null);
+  // t.connect();
+  // t.sendMessage(msg, null);
+  // logger.info("one mail sent to creator notifying the new created collaboration!");
+  //
+  // t.close();
+  // } catch (AddressException e) {
+  // e.printStackTrace();
+  // logger.info("Caught an AddressException, which means one or more of your "
+  // + "addresses are improperly formatted.");
+  // } catch (MessagingException e) {
+  // e.printStackTrace();
+  // logger.info("Caught a MessagingException, which means that there was a "
+  // + "problem sending your message to Amazon's E-mail Service check the " + "stack trace for more information.");
+  // }
+  //
+  // logger.debug(LOGPRE + "sendCreatorNotificationMail() end" + LOGPRE);
+  // }
+
   /**
    * Send a notification to creator notifying new collaboration creation.
    * 
@@ -551,66 +593,64 @@ public class CreationServiceImpl implements CreationService {
   private void sendCreatorNotificationMail(String creatorEmail, String creatorName) {
     logger.debug(LOGPRE + "sendCreatorNotificationMail() start" + LOGPRE);
 
-    this.verifyEmailAddress(ses);
     Properties props = new Properties();
-    props.setProperty("mail.transport.protocol", "aws");
-    props.setProperty("mail.aws.user", credentials.getAWSAccessKeyId());
-    props.setProperty("mail.aws.password", credentials.getAWSSecretKey());
+    props.setProperty("mail.smtp.host", "smtp.gmail.com");
+    props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+    props.setProperty("mail.smtp.socketFactory.fallback", "false");
+    props.setProperty("mail.smtp.port", "465");
+    props.put("mail.smtp.auth", "true");
+    Session sendMailSession = Session.getInstance(props, null);
 
-    Session session = Session.getInstance(props);
     try {
-      // Create a new Message
-      Message msg = new MimeMessage(session);
-      msg.setFrom(new InternetAddress(MAIL_FROM));
-      msg.addRecipient(Message.RecipientType.TO, new InternetAddress(creatorEmail));
-      msg.setSubject(MAIL_SUBJECT);
-      msg.setText("Dear " + creatorName + ",\n\n" + MAIL_COMMON_CONTENT_FOR_CREATOR + LINK_CREATOR);
-      msg.saveChanges();
+      Transport transport = sendMailSession.getTransport("smtp");
+      transport.connect("smtp.gmail.com", "pcsf.notification@gmail.com", "pcsf123456");
+      Message newMessage = new MimeMessage(sendMailSession);
 
-      // Reuse one Transport object for sending all your messages
-      // for better performance
-      Transport t = new AWSJavaMailTransport(session, null);
-      t.connect();
-      t.sendMessage(msg, null);
+      newMessage.setSubject(MAIL_SUBJECT);
+      newMessage.setFrom(new InternetAddress(MAIL_FROM));
+
+      Address addressTo[] = { new InternetAddress(creatorEmail) };
+      newMessage.setRecipients(Message.RecipientType.TO, addressTo);
+
+      newMessage.setSentDate(new java.util.Date());
+      newMessage.setText("Dear " + creatorName + ",\n\n" + MAIL_COMMON_CONTENT_FOR_CREATOR + LINK_CREATOR);
+
+      newMessage.saveChanges();
+      transport.sendMessage(newMessage, newMessage.getRecipients(Message.RecipientType.TO));
       logger.info("one mail sent to creator notifying the new created collaboration!");
 
-      t.close();
-    } catch (AddressException e) {
+      transport.close();
+    } catch (Exception e) {
       e.printStackTrace();
-      logger.info("Caught an AddressException, which means one or more of your "
-          + "addresses are improperly formatted.");
-    } catch (MessagingException e) {
-      e.printStackTrace();
-      logger.info("Caught a MessagingException, which means that there was a "
-          + "problem sending your message to Amazon's E-mail Service check the " + "stack trace for more information.");
     }
 
     logger.debug(LOGPRE + "sendCreatorNotificationMail() end" + LOGPRE);
   }
 
-  /**
-   * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a verification
-   * email, which will contain a link that you can click on to complete the verification process.
-   * 
-   * @param ses
-   *          The Amazon Simple Email Service client to use when making requests to Amazon SES.
-   * @param address
-   *          The email address to verify.
-   */
-  private void verifyEmailAddress(AmazonSimpleEmailService ses) {
-    logger.debug(LOGPRE + "verifyEmailAddress() start" + LOGPRE);
-
-    ListVerifiedEmailAddressesResult verifiedEmails = ses.listVerifiedEmailAddresses();
-    if (verifiedEmails.getVerifiedEmailAddresses().contains(MAIL_FROM)) {
-      logger.debug(LOGPRE + "verifyEmailAddress() end" + LOGPRE);
-      return;
-    }
-
-    ses.verifyEmailAddress(new VerifyEmailAddressRequest().withEmailAddress(MAIL_FROM));
-    logger.info("Please check the email address " + MAIL_FROM + " to verify it");
-
-    logger.debug(LOGPRE + "verifyEmailAddress() end" + LOGPRE);
-  }
+  // /**
+  // * Sends a request to Amazon Simple Email Service to verify the specified email address. This triggers a
+  // verification
+  // * email, which will contain a link that you can click on to complete the verification process.
+  // *
+  // * @param ses
+  // * The Amazon Simple Email Service client to use when making requests to Amazon SES.
+  // * @param address
+  // * The email address to verify.
+  // */
+  // private void verifyEmailAddress(AmazonSimpleEmailService ses) {
+  // logger.debug(LOGPRE + "verifyEmailAddress() start" + LOGPRE);
+  //
+  // ListVerifiedEmailAddressesResult verifiedEmails = ses.listVerifiedEmailAddresses();
+  // if (verifiedEmails.getVerifiedEmailAddresses().contains(MAIL_FROM)) {
+  // logger.debug(LOGPRE + "verifyEmailAddress() end" + LOGPRE);
+  // return;
+  // }
+  //
+  // ses.verifyEmailAddress(new VerifyEmailAddressRequest().withEmailAddress(MAIL_FROM));
+  // logger.info("Please check the email address " + MAIL_FROM + " to verify it");
+  //
+  // logger.debug(LOGPRE + "verifyEmailAddress() end" + LOGPRE);
+  // }
 
   /**
    * Generate a random id for new user or collaboration.

@@ -26,5 +26,6 @@
 		
 		<module>../registrationService</module>
 		<module>../scheduleNCoordinateService</module>
+		
 	</modules>
 </project>

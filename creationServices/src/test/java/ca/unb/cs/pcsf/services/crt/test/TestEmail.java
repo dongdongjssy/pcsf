@@ -11,7 +11,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class TestEmail {
-  public void SendEmailTest() {
+  public void sendCreatorNotificationMail(String creatorEmail, String creatorName) {
     Properties props = new Properties();
     props.setProperty("mail.smtp.host", "smtp.gmail.com");
     props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
