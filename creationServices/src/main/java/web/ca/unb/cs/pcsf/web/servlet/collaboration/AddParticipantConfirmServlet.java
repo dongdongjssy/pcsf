@@ -4,21 +4,11 @@
  */
 package ca.unb.cs.pcsf.web.servlet.collaboration;
 
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.LINK_PARTICIPANT;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_FROM;
-import static ca.unb.cs.pcsf.services.crt.CreationServiceConstants.MAIL_SUBJECT;
 import static ca.unb.cs.pcsf.web.PCSFWebConstants.ATTRIBUTE_ADDED_PARTICIPANTS;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -41,8 +31,6 @@ import ca.unb.cs.pcsf.web.db.PcsfSimpleDBAccessImpl;
 @WebServlet(description = "Add Participant Confirm Servlet", urlPatterns = { "/AddParticipantConfirm" })
 public class AddParticipantConfirmServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  public static final String MAIL_CONTENT_PARTICIPANT_REG_REQUIRE = "You are asked to participant a collaboration!\nPlease click the"
-      + " following link to finish registration using your given id:\n\n";
 
   /**
    * @see HttpServlet#HttpServlet()
@@ -65,10 +53,9 @@ public class AddParticipantConfirmServlet extends HttpServlet {
     for (int i = 0; i < participants.size(); i++) {
       Participant p = participants.get(i);
       dbAccess.putDataIntoDomain(p);
-      sendParticipantNotificationMail(p.getEmail(), p.getName());
 
       try {
-        Thread.sleep(3000);
+        Thread.sleep(2000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -82,6 +69,12 @@ public class AddParticipantConfirmServlet extends HttpServlet {
 
     dbAccess.updateInstanceParticipantList(collaborationId, participantList);
 
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     response.sendRedirect(request.getContextPath() + "/View?collaborationId=" + collaborationId);
   }
 
@@ -91,44 +84,4 @@ public class AddParticipantConfirmServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     doGet(request, response);
   }
-
-  /**
-   * Send a notification to creator notifying new collaboration creation.
-   * 
-   * @param pEmail
-   * @param pName
-   */
-  private void sendParticipantNotificationMail(String pEmail, String pName) {
-
-    Properties props = new Properties();
-    props.setProperty("mail.smtp.host", "smtp.gmail.com");
-    props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-    props.setProperty("mail.smtp.socketFactory.fallback", "false");
-    props.setProperty("mail.smtp.port", "465");
-    props.put("mail.smtp.auth", "true");
-    Session sendMailSession = Session.getInstance(props, null);
-
-    try {
-      Transport transport = sendMailSession.getTransport("smtp");
-      transport.connect("smtp.gmail.com", "pcsf.notification@gmail.com", "pcsf123456");
-      Message newMessage = new MimeMessage(sendMailSession);
-
-      newMessage.setSubject(MAIL_SUBJECT);
-      newMessage.setFrom(new InternetAddress(MAIL_FROM));
-
-      Address addressTo[] = { new InternetAddress(pEmail) };
-      newMessage.setRecipients(Message.RecipientType.TO, addressTo);
-
-      newMessage.setSentDate(new java.util.Date());
-      newMessage.setText("Dear " + pName + ",\n\n" + MAIL_CONTENT_PARTICIPANT_REG_REQUIRE + LINK_PARTICIPANT);
-
-      newMessage.saveChanges();
-      transport.sendMessage(newMessage, newMessage.getRecipients(Message.RecipientType.TO));
-
-      transport.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
 }
