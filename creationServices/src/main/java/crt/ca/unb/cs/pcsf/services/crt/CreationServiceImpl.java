@@ -63,8 +63,6 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.ReplaceableItem;
 import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 
 /**
  * @author dongdong
@@ -78,7 +76,7 @@ public class CreationServiceImpl implements CreationService {
   private Logger logger = Logger.getLogger(CreationServiceImpl.class.getName());
   private AmazonS3 s3;
   private AmazonSimpleDB sdb;
-  private AmazonSimpleEmailService ses;
+  // private AmazonSimpleEmailService ses;
   private PropertiesCredentials credentials;
 
   /**
@@ -89,7 +87,7 @@ public class CreationServiceImpl implements CreationService {
       credentials = new PropertiesCredentials(CreationServiceImpl.class.getResourceAsStream(CREDENTIAL_FILE_PATH));
       s3 = new AmazonS3Client(credentials);
       sdb = new AmazonSimpleDBClient(credentials);
-      ses = new AmazonSimpleEmailServiceClient(credentials);
+      // ses = new AmazonSimpleEmailServiceClient(credentials);
 
       createDomain(DOMAIN_CREATOR); // create domain "Creator"
       createDomain(DOMAIN_COLLABORATION);// create domain "Collaboration"
