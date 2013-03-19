@@ -2,16 +2,17 @@
 	pageEncoding="UTF-8"%>
 <%@page import="org.jbpm.api.*,java.util.*,org.jbpm.api.model.*"%>
 <%
-	String id = request.getParameter("id");
-	ProcessEngine processEngine = Configuration.getProcessEngine();
-	RepositoryService repositoryService = processEngine.getRepositoryService();
-	ExecutionService executionService = processEngine.getExecutionService();
-	ProcessInstance processInstance = executionService.findProcessInstanceById(id);
-	Set<String> activityNames = processInstance.findActiveActivityNames();
+  String id = request.getParameter("id");
+  ProcessEngine processEngine = Configuration.getProcessEngine();
+  RepositoryService repositoryService = processEngine.getRepositoryService();
+  ExecutionService executionService = processEngine.getExecutionService();
+  ProcessInstance processInstance = executionService.findProcessInstanceById(id);
+  Set<String> activityNames = processInstance.findActiveActivityNames();
 
-	ActivityCoordinates ac = repositoryService.getActivityCoordinates(processInstance.getProcessDefinitionId(),
-			activityNames.iterator().next());
+  ActivityCoordinates ac = repositoryService.getActivityCoordinates(processInstance.getProcessDefinitionId(),
+      activityNames.iterator().next());
 %>
+<!--  -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>

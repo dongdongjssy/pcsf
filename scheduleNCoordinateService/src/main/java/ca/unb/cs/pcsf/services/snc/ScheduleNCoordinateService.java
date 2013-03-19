@@ -17,74 +17,75 @@ import javax.jws.WebService;
 @WebService
 public interface ScheduleNCoordinateService {
 
-	/**
-	 * Deploy a process
-	 * 
-	 * @return process deployment id
-	 */
-	@WebMethod
-	public void deployProcess(String collaborationId);
+  /**
+   * Deploy a process
+   * 
+   * @return process deployment id
+   */
+  @WebMethod
+  public void deployProcess(String collaborationId);
 
-	/**
-	 * Run collaboration
-	 * 
-	 * @param collaborationId
-	 */
-	@WebMethod
-	public void runCollaboration(String collaborationId, String processDefId);
+  /**
+   * Run collaboration
+   * 
+   * @param collaborationId
+   */
+  @WebMethod
+  public void runCollaboration(String collaborationId, String processDefId);
 
-	/**
-	 * Get the information of process definition
-	 * 
-	 * @param collaborationId
-	 * @return process definitions information
-	 */
-	@WebMethod
-	public String[] getProcessDefintions(String collaborationId);
+  /**
+   * Get the information of process definition
+   * 
+   * @param collaborationId
+   * @return process definitions information
+   */
+  @WebMethod
+  public String[] getProcessDefintions(String collaborationId);
 
-	/**
-	 * Get the information of process instances
-	 * 
-	 * @param collaborationId
-	 * @return process instances information
-	 */
-	@WebMethod
-	public String[] getProcessInstances(String collaborationId);
+  /**
+   * Get the information of process instances
+   * 
+   * @param collaborationId
+   * @return process instances information
+   */
+  @WebMethod
+  public String[] getProcessInstances(String collaborationId);
 
-	/**
-	 * Get task list of certain user
-	 * 
-	 * @param uesername
-	 * @return task of certain user
-	 */
-	@WebMethod
-	public String[] getTask(String uesername, String collaborationId);
+  /**
+   * Get task list of certain user
+   * 
+   * @param uesername
+   * @return task of certain user
+   */
+  @WebMethod
+  public String[] getTask(String uesername, String collaborationId);
 
-	/**
-	 * Get current task
-	 * 
-	 * @param collaborationId
-	 * @return current task
-	 */
-	@WebMethod
-	public String[] getCurrentTask(String collaborationId);
+  /**
+   * Get current task
+   * 
+   * @param collaborationId
+   * @param processInstanceId
+   * @return current task
+   */
+  @WebMethod
+  public String[] getCurrentTask(String collaborationId, String processInstanceId);
 
-	/**
-	 * Submit a task
-	 * 
-	 * @param taskId
-	 * @param collaborationId
-	 */
-	@WebMethod
-	public void submitTask(String taskId, String collaborationId);
+  /**
+   * Submit a task
+   * 
+   * @param taskId
+   * @param collaborationId
+   */
+  @WebMethod
+  public void submitTask(String taskId, String collaborationId);
 
-	/**
-	 * A user takes a task
-	 * 
-	 * @param taskId
-	 * @param username
-	 * @param collaborationId
-	 */
-	public void takeTask(String taskId, String username, String collaborationId);
+  /**
+   * A user takes a task
+   * 
+   * @param taskId
+   * @param username
+   * @param collaborationId
+   */
+  public void takeTask(String taskId, String username, String collaborationId);
 
 }

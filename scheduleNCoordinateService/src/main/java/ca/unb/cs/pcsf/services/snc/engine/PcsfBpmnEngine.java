@@ -100,13 +100,14 @@ public class PcsfBpmnEngine implements Engine {
 
     // start a process instance
     logger.info("starting a process instance...");
-    executionService.startProcessInstanceById(pd.getId());
+    String processInstanceId = executionService.startProcessInstanceById(pd.getId()).getId();
 
     // change collaboration state to be running
     List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
     ReplaceableItem item = new ReplaceableItem(collaborationId);
     item.withAttributes(new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_CURRENT_STATE, COLLABORATION_STATE_RUNNING,
-        true));
+        true), new ReplaceableAttribute(COLLABORATION_ATTRIBUTE_PROCESS_DEFINITION_ID, processInstanceId, true));
+
     items.add(item);
     sdb.batchPutAttributes(new BatchPutAttributesRequest(DOMAIN_COLLABORATION, items));
 
@@ -178,10 +179,10 @@ public class PcsfBpmnEngine implements Engine {
    * @see ca.unb.cs.pcsf.services.snc.engine.Engine#getCurrentTask()
    */
   @Override
-  public List<Task> getCurrentTask() {
+  public List<Task> getCurrentTask(String processInstanceId) {
     logger.debug(LOGPRE + "getCurrentTask() start" + LOGPRE);
     logger.debug(LOGPRE + "getCurrentTask() end" + LOGPRE);
-    return taskService.createTaskQuery().list();
+    return taskService.createTaskQuery().processInstanceId(processInstanceId).list();
   }
 
   /*

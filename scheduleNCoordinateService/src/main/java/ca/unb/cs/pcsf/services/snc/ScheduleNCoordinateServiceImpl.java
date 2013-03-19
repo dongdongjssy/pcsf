@@ -140,10 +140,10 @@ public class ScheduleNCoordinateServiceImpl implements ScheduleNCoordinateServic
    * @see ca.unb.cs.pcsf.services.snc.ScheduleNCoordinateService#getCurrentTask (java.lang.String)
    */
   @Override
-  public String[] getCurrentTask(String collaborationId) {
+  public String[] getCurrentTask(String collaborationId, String processInstanceId) {
     logger.debug(LOGPRE + "getCurrentTask() start" + LOGPRE);
     getEngine(collaborationId);
-    List<Task> taskList = engine.getCurrentTask();
+    List<Task> taskList = engine.getCurrentTask(processInstanceId);
 
     List<String> resultList = new ArrayList<String>();
     for (Task task : taskList) {
